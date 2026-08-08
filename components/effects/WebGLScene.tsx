@@ -18,6 +18,8 @@ import {
   heroVertexShader,
 } from "@/lib/webgl/shaders/hero";
 
+import { getSceneElement } from "@/lib/webgl/getSceneElement";
+
 export default function WebGLScene() {
   const { renderer } = useWebGL();
 
@@ -28,13 +30,13 @@ export default function WebGLScene() {
 
     const { gl } = renderer;
 
-    const element = document.querySelector(
-      "[data-webgl-scene]"
-    );
+const element = getSceneElement(
+  "[data-webgl-scene]"
+);
 
-    if (!(element instanceof HTMLElement)) {
-      return;
-    }
+if (!element) {
+  return;
+}
 
     /*
      * -----------------------------------------------------
@@ -67,6 +69,11 @@ export default function WebGLScene() {
       value: [0, 0],
       kind: "float_vec2",
     });
+    const uScroll = new Uniform({
+  name: "u_scroll",
+  value: 0,
+  kind: "float",
+});
 
 
     /*
@@ -87,6 +94,7 @@ export default function WebGLScene() {
           ...scene.uniforms,
           u_time: uTime,
           u_mouse: uMouse,
+          u_scroll: uScroll,
         },
 
         transparent: true,
@@ -137,6 +145,26 @@ export default function WebGLScene() {
         delta * 0.001;
     };
 
+const updateScroll = () => {
+  const rect = element.getBoundingClientRect();
+
+  const progress =
+    -rect.top /
+    Math.max(window.innerHeight, 1);
+
+  uScroll.value = Math.max(
+    0,
+    Math.min(1, progress)
+  );
+};
+
+window.addEventListener(
+  "scroll",
+  updateScroll,
+  { passive: true }
+);
+
+updateScroll();
 
     renderer.addScene(scene);
 
@@ -152,6 +180,10 @@ export default function WebGLScene() {
         "pointermove",
         handlePointerMove
       );
+      window.removeEventListener(
+  "scroll",
+  updateScroll
+);
 
       renderer.removeScene?.(scene);
     };

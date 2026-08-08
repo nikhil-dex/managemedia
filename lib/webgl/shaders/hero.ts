@@ -21,6 +21,7 @@ precision highp float;
 
 uniform float u_time;
 uniform vec2 u_mouse;
+uniform float u_scroll;
 
 varying vec2 vUv;
 
@@ -73,6 +74,12 @@ void main() {
   */
   vec2 p = uv - 0.5;
 
+  float scroll = clamp(
+  u_scroll,
+  0.0,
+  1.0
+);
+
   /*
     Keep the effect visually consistent
     across different screen proportions.
@@ -119,10 +126,10 @@ void main() {
   /*
     Organic animation.
   */
-  vec2 movement = vec2(
-    u_time * 0.035,
-    u_time * 0.018
-  );
+vec2 movement = vec2(
+  u_time * 0.035 + scroll * 0.35,
+  u_time * 0.018 - scroll * 0.18
+);
 
 
   /*
@@ -259,6 +266,15 @@ void main() {
     (grain - 0.5) *
     0.012;
 
+    float scrollFade =
+  1.0 -
+  smoothstep(
+    0.55,
+    1.0,
+    scroll
+  );
+
+color *= scrollFade;
 
   gl_FragColor = vec4(
     color,
