@@ -77,9 +77,39 @@ export default function Hero() {
             <span>Explore</span>
 
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 transition-all duration-500 [transition-timing-function:var(--mm-ease)] group-hover:border-[var(--mm-accent)] group-hover:bg-[var(--mm-accent)] group-hover:text-black">
-              <span className="transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                ↗
-              </span>
+
+
+            <span
+  aria-hidden="true"
+  className="
+    relative block h-3.5 w-3.5
+    transition-transform duration-500
+    md:group-hover:translate-x-0.5
+    md:group-hover:-translate-y-0.5
+  "
+>
+  <span
+    className="
+      absolute top-0.5
+      right-0.5
+      h-px w-3.5
+      -translate-y-1/2
+      rotate-[-50deg]
+      bg-current
+      origin-right
+    "
+  />
+
+  <span
+    className="
+      absolute right-0 top-0
+      h-2 w-2
+      border-r border-t border-current
+    "
+  />
+</span>
+
+
             </span>
           </a>
         </div>

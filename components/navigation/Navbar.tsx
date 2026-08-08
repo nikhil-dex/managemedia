@@ -192,9 +192,43 @@ useLayoutEffect(() => {
                 <span className="flex items-center justify-between">
                   <span>{item.label}</span>
 
-                  <span className="text-[var(--mm-accent)]">
-                    ↗
-                  </span>
+                 <span
+  aria-hidden="true"
+  className="
+    relative block h-5 w-5
+    text-[var(--mm-accent)]
+    transition-transform duration-500
+    group-hover:translate-x-1
+    group-hover:-translate-y-1
+  "
+>
+  <span
+    className="
+      absolute
+      right-0.5
+      top-0.5
+      h-px
+      w-5
+      origin-right
+      -translate-y-1/2
+      rotate-[-45deg]
+      bg-current
+    "
+  />
+
+  <span
+    className="
+      absolute
+      right-0
+      top-0
+      h-2.5
+      w-2.5
+      border-r
+      border-t
+      border-current
+    "
+  />
+</span>
                 </span>
               </Link>
             ))}
