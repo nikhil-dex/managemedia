@@ -1,26 +1,256 @@
 @import "tailwindcss";
 
+/* =========================================================
+   MANAGEMEDIA — GLOBAL DESIGN SYSTEM
+   ========================================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ---------- Colors ---------- */
+
+  --mm-black: #080808;
+  --mm-white: #f2f0ea;
+
+  --mm-muted: #8a8a8a;
+  --mm-muted-light: #b8b6b0;
+
+  --mm-accent: #d9ff00;
+  --mm-accent-soft: rgba(217, 255, 0, 0.12);
+
+  --mm-border: rgba(242, 240, 234, 0.14);
+  --mm-border-strong: rgba(242, 240, 234, 0.28);
+
+  /* ---------- Layout ---------- */
+
+  --mm-page-padding: clamp(1.25rem, 3vw, 3.5rem);
+
+  --mm-section-gap: clamp(6rem, 12vw, 12rem);
+
+  --mm-max-width: 1600px;
+
+  /* ---------- Typography ---------- */
+
+--mm-font-body: var(--font-inter), sans-serif;
+--mm-font-display: var(--font-inter-tight), sans-serif;
+--mm-font-mono: var(--font-mono), monospace;
+
+  --mm-letter-tight: -0.055em;
+  --mm-letter-normal: -0.015em;
+  --mm-letter-wide: 0.12em;
+
+  /* ---------- Motion ---------- */
+
+  --mm-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --mm-duration-fast: 250ms;
+  --mm-duration: 600ms;
+  --mm-duration-slow: 1000ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+html {
+  margin: 0;
+  padding: 0;
+
+  background: var(--mm-black);
+
+  color-scheme: dark;
+
+  scroll-behavior: auto;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+
+  min-height: 100vh;
+
+  background: var(--mm-black);
+  color: var(--mm-white);
+
+  font-family: var(--mm-font-body);
+
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--mm-font-display);
+
+  font-weight: 800;
+
+  line-height: 0.95;
+
+  letter-spacing: var(--mm-letter-tight);
+}
+
+.mm-mono {
+  font-family: var(--mm-font-mono);
+
+  font-size: 0.72rem;
+
+  line-height: 1;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   MEDIA
+   ========================================================= */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+
+  max-width: 100%;
+}
+
+
+img {
+  height: auto;
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+  color: inherit;
+
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   BUTTONS / FORMS
+   ========================================================= */
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+
+button {
+  border: 0;
+
+  background: none;
+
+  color: inherit;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+::selection {
+  background: var(--mm-accent);
+
+  color: var(--mm-black);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+
+::-webkit-scrollbar-track {
+  background: var(--mm-black);
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: #303030;
+
+  border-radius: 999px;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+
+
+/* Firefox */
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #303030 var(--mm-black);
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+:focus-visible {
+  outline: 1px solid var(--mm-accent);
+
+  outline-offset: 5px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  :root {
+    --mm-page-padding: 1.25rem;
+
+    --mm-section-gap: 6rem;
+  }
 }
