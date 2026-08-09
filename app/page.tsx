@@ -2,6 +2,8 @@ import Navbar from "@/components/navigation/Navbar";
 import WebGLCanvas from "@/components/effects/WebGLCanvas";
 import WebGLScene from "@/components/effects/WebGLScene";
 import Hero from "@/components/hero/Hero";
+import Services from "@/components/sections/Services";
+import Work from "@/components/sections/Work";
 
 export default function Home() {
   return (
@@ -13,6 +15,8 @@ export default function Home() {
       <Navbar />
 
       <Hero />
+      <Services />
+      <Work />
     </main>
   );
 }
