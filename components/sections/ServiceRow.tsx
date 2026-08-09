@@ -127,7 +127,7 @@ export default function ServiceRow({
           aria-hidden="true"
           className="relative hidden h-10 w-10 text-[var(--mm-accent)] md:block"
         >
-          <span className="absolute left-0 top-[65%] h-px w-10 origin-right -translate-y-1/2 rotate-[-45deg] bg-current" />
+          <span className="absolute right-0.5 top-0.5 h-px w-10 origin-right -translate-y-1/2 rotate-[-45deg] bg-current" />
 
           <span className="absolute right-0 top-0 h-3 w-3 border-r border-t border-current" />
         </span>
