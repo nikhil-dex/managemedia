@@ -8,8 +8,8 @@ const contactDetails = [
   },
   {
     label: "Phone",
-    value: "+91-9667346088",
-    href: "tel:+919667346088",
+    value: "+91-9315226146",
+    href: "tel:+919315226146",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function Contact() {
                 {detail.label}
               </span>
 
-              <span className="font-[var(--font-inter-tight)] text-[clamp(1.8rem,4vw,4.5rem)] font-bold tracking-[-0.05em] transition-transform duration-500 [transition-timing-function:var(--mm-ease)] md:group-hover:translate-x-2">
+              <span className="font-[var(--font-inter-tight)] text-[clamp(1.5rem,2vw,4rem)] font-bold tracking-[-0.05em] transition-transform duration-500 [transition-timing-function:var(--mm-ease)] md:group-hover:translate-x-2">
                 {detail.value}
               </span>
 
