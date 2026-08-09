@@ -21,6 +21,11 @@ export default function FooterAnimation({
     if (!root) {
       return;
     }
+    const footer = root.querySelector("footer");
+
+if (!footer) {
+  return;
+}
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -38,10 +43,12 @@ export default function FooterAnimation({
       const bottom = root.querySelector("[data-footer-bottom]");
 
       const timeline = gsap.timeline({
+    
         scrollTrigger: {
-          trigger: root,
-          start: "top 82%",
-          once: true,
+           
+          trigger: footer,
+          start: "top 50%",
+   
         },
         defaults: {
           ease: "power4.out",

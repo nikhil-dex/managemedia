@@ -1,5 +1,6 @@
 import Container from "@/components/layout/Container";
 import HeroIntroAnimation from "./HeroIntroAnimation";
+import HeroSectionTransition from "@/components/effects/HeroSectionTransition";
 
 export default function Hero() {
   return (
@@ -8,7 +9,7 @@ export default function Hero() {
       data-webgl-scene
       className="relative z-10 min-h-screen overflow-hidden"
     >
-  
+  <HeroSectionTransition />
         <HeroIntroAnimation>
       <Container className="flex min-h-screen flex-col justify-between pb-8 pt-28 md:pb-10 md:pt-32">
         {/* Top metadata */}
@@ -115,6 +116,7 @@ export default function Hero() {
         </div>
       </Container>
 </HeroIntroAnimation>
+<HeroSectionTransition />
     </section>
   );
 }
