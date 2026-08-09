@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import GrainOverlay from "@/components/effects/GrainOverlay";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,7 +37,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${interTight.variable} ${jetBrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <GrainOverlay />
+        {children}
+      </body>
     </html>
   );
 }
