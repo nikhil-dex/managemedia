@@ -178,7 +178,7 @@ useLayoutEffect(() => {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className={`border-b border-[var(--mm-border)] py-5 font-[var(--font-inter-tight)] text-[clamp(3rem,13vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.06em] transition-all duration-700 ${
+                className={`group border-b border-[var(--mm-border)] py-5 font-[var(--font-inter-tight)] text-[clamp(3rem,13vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.06em] transition-all duration-700 ${
                   menuOpen
                     ? "translate-y-0 opacity-100"
                     : "translate-y-8 opacity-0"
