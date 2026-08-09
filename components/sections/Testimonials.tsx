@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { gsap } from "gsap";
 import Container from "@/components/layout/Container";
+import TestimonialsAnimation from "./TestimonialsAnimation";
+
 
 const testimonials = [
   {
@@ -90,12 +92,15 @@ const isAnimating = useRef(false);
 };
 
   return (
-    <section
-      id="testimonials"
-      className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
-    >
-      <Container>
-        <div className="mb-16 flex items-start justify-between md:mb-24">
+    <TestimonialsAnimation>
+      <section
+        id="testimonials"
+        className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
+      >
+        <Container>
+        <div
+        data-testimonials-meta
+        className="mb-16 flex items-start justify-between md:mb-24">
           <span className="mm-mono text-white/45">
             Clients / 004
           </span>
@@ -110,7 +115,9 @@ const isAnimating = useRef(false);
         <div className="grid gap-16 lg:grid-cols-[0.7fr_2fr] lg:gap-24">
           {/* Label */}
           <div>
-            <p className="mm-mono text-[var(--mm-accent)]">
+            <p 
+            data-testimonials-label
+            className="mm-mono text-[var(--mm-accent)]">
               Testimonials
             </p>
           </div>
@@ -129,6 +136,7 @@ const isAnimating = useRef(false);
 
               <div
               ref={authorRef}
+              data-testimonials-author
               className="mt-12 border-t border-[var(--mm-border)] pt-5">
                 <p className="font-[var(--font-inter)] text-sm font-medium uppercase tracking-[0.06em]">
                   {testimonial.name}
@@ -141,7 +149,9 @@ const isAnimating = useRef(false);
             </div>
 
             {/* Controls */}
-            <div className="mt-12 flex items-center justify-between border-t border-[var(--mm-border)] pt-5">
+            <div
+            data-testimonials-controls
+            className="mt-12 flex items-center justify-between border-t border-[var(--mm-border)] pt-5">
               <span className="mm-mono text-xs text-white/35">
                 0{active + 1} / 0{testimonials.length}
               </span>
@@ -179,5 +189,6 @@ const isAnimating = useRef(false);
         </div>
       </Container>
     </section>
+    </TestimonialsAnimation>
   );
 }

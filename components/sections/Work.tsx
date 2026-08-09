@@ -1,15 +1,19 @@
 import Container from "@/components/layout/Container";
 import WorkCTA from "./WorkCTA";
+import WorkAnimation from "./WorkAnimation";
 
 export default function Work() {
   return (
+    <WorkAnimation>
     <section
       id="work"
       className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
     >
       <Container>
         {/* Section metadata */}
-        <div className="mb-16 flex items-start justify-between md:mb-24">
+        <div
+        data-work-meta
+        className="mb-16 flex items-start justify-between md:mb-24">
           <span className="mm-mono text-white/45">
             ManageMedia / 003
           </span>
@@ -23,11 +27,15 @@ export default function Work() {
 
         {/* Main heading */}
         <div className="max-w-[1500px]">
-          <p className="mm-mono mb-8 text-[var(--mm-accent)]">
+          <p
+          data-work-label
+          className="mm-mono mb-8 text-[var(--mm-accent)]">
             Work
           </p>
 
-          <h2 className="font-[var(--font-inter-tight)] text-[clamp(4rem,11vw,11rem)] font-extrabold uppercase leading-[0.78] tracking-[-0.075em]">
+          <h2
+          data-work-heading
+          className="font-[var(--font-inter-tight)] text-[clamp(4rem,11vw,11rem)] font-extrabold uppercase leading-[0.78] tracking-[-0.075em]">
             Want to
             <br />
             see our
@@ -38,7 +46,9 @@ export default function Work() {
 
         {/* Visual work panel */}
         <div className="mt-20 md:mt-32">
-          <div className="relative overflow-hidden border border-[var(--mm-border)]">
+          <div
+          data-work-panel
+          className="relative overflow-hidden border border-[var(--mm-border)]">
             <div className="grid min-h-[420px] grid-cols-2 md:min-h-[600px] md:grid-cols-4">
               <div className="border-r border-[var(--mm-border)] bg-white/[0.025]" />
               <div className="border-r border-[var(--mm-border)] bg-white/[0.015]" />
@@ -74,10 +84,13 @@ export default function Work() {
         </div>
 
         {/* CTA */}
-        <div className="mt-8 flex justify-end">
+        <div
+        data-work-cta
+        className="mt-8 flex justify-end">
             <WorkCTA />
         </div>
       </Container>
     </section>
+    </WorkAnimation>
   );
 }
