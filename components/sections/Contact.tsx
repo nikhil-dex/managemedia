@@ -1,5 +1,5 @@
 import Container from "@/components/layout/Container";
-
+import ContactAnimation from "./ContactAnimation";
 const contactDetails = [
   {
     label: "Email",
@@ -15,13 +15,16 @@ const contactDetails = [
 
 export default function Contact() {
   return (
+    <ContactAnimation>
     <section
       id="contact"
       className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
     >
       <Container>
         {/* Metadata */}
-        <div className="mb-16 flex items-start justify-between md:mb-24">
+        <div
+        data-contact-meta
+        className="mb-16 flex items-start justify-between md:mb-24">
           <span className="mm-mono text-white/45">
             Contact / 006
           </span>
@@ -34,12 +37,18 @@ export default function Contact() {
         </div>
 
         {/* Heading */}
-        <div className="max-w-[1500px]">
-          <p className="mm-mono mb-8 text-[var(--mm-accent)]">
+        <div
+        
+        className="max-w-[1500px]">
+          <p
+          data-contact-label
+          className="mm-mono mb-8 text-[var(--mm-accent)]">
             Contact Us
           </p>
 
-          <h2 className="font-[var(--font-inter-tight)] text-[clamp(4rem,11vw,12rem)] font-extrabold uppercase leading-[0.78] tracking-[-0.075em]">
+          <h2 
+          data-contact-heading
+          className="font-[var(--font-inter-tight)] text-[clamp(4rem,11vw,12rem)] font-extrabold uppercase leading-[0.78] tracking-[-0.075em]">
             Let&apos;s
             <br />
             talk<span className="text-[var(--mm-accent)]">.</span>
@@ -47,9 +56,12 @@ export default function Contact() {
         </div>
 
         {/* Contact information */}
-        <div className="mt-20 border-t border-[var(--mm-border)] md:mt-32">
+        <div
+        data-contact-links
+        className="mt-20 border-t border-[var(--mm-border)] md:mt-32">
           {contactDetails.map((detail) => (
             <a
+            data-contact-item
               key={detail.label}
               href={detail.href}
               className="group flex flex-col gap-4 border-b border-[var(--mm-border)] py-7 md:grid md:grid-cols-[180px_1fr_auto] md:items-center md:py-9"
@@ -75,7 +87,9 @@ export default function Contact() {
         </div>
 
         {/* Closing */}
-        <div className="mt-16 flex flex-col gap-6 md:mt-24 md:flex-row md:items-end md:justify-between">
+        <div 
+        data-contact-closing
+        className="mt-16 flex flex-col gap-6 md:mt-24 md:flex-row md:items-end md:justify-between">
           <p className="max-w-md text-sm leading-relaxed text-white/40">
             Ready to start a conversation?
             <br />
@@ -88,5 +102,6 @@ export default function Contact() {
         </div>
       </Container>
     </section>
+    </ContactAnimation>
   );
 }
