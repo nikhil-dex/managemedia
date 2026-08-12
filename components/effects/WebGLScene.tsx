@@ -18,7 +18,10 @@ import {
   heroVertexShader,
 } from "@/lib/webgl/shaders/hero";
 
-import { getSceneElement } from "@/lib/webgl/getSceneElement";
+import {
+  servicesFragmentShader,
+  servicesVertexShader,
+} from "@/lib/webgl/shaders/services";
 
 export default function WebGLScene() {
   const { renderer } = useWebGL();
@@ -30,144 +33,172 @@ export default function WebGLScene() {
 
     const { gl } = renderer;
 
-const element = getSceneElement(
-  "[data-webgl-scene]"
-);
-
-if (!element) {
-  return;
-}
-
-    /*
-     * -----------------------------------------------------
-     * Scene
-     * -----------------------------------------------------
-     */
-
-    const drawable = new Drawable(gl);
-
-    const scene = new ScrollScene({
-      element,
-      scene: drawable,
-    });
-
-
-    /*
-     * -----------------------------------------------------
-     * Uniforms
-     * -----------------------------------------------------
-     */
-
-    const uTime = new Uniform({
-      name: "u_time",
-      value: 0,
-      kind: "float",
-    });
-
-    const uMouse = new Uniform({
-      name: "u_mouse",
-      value: [0, 0],
-      kind: "float_vec2",
-    });
-    const uScroll = new Uniform({
-  name: "u_scroll",
-  value: 0,
-  kind: "float",
-});
-
-
-    /*
-     * -----------------------------------------------------
-     * Mesh
-     * -----------------------------------------------------
-     */
-
-    new Mesh(gl, {
-      geometry: new Triangle(gl),
-
-      program: new Program(gl, {
-        vertex: heroVertexShader,
-
-        fragment: heroFragmentShader,
-
-        uniforms: {
-          ...scene.uniforms,
-          u_time: uTime,
-          u_mouse: uMouse,
-          u_scroll: uScroll,
-        },
-
-        transparent: true,
-      }),
-    }).setParent(drawable);
-
-
-    /*
-     * -----------------------------------------------------
-     * Mouse
-     * -----------------------------------------------------
-     */
-
-    const handlePointerMove = (
-      event: PointerEvent
-    ) => {
-      const x =
-        (event.clientX / window.innerWidth) * 2 -
-        1;
-
-      const y =
-        1 -
-        (event.clientY / window.innerHeight) * 2;
-
-      uMouse.value = [x, y];
-    };
-
-
-    window.addEventListener(
-      "pointermove",
-      handlePointerMove,
-      { passive: true }
+    const sceneElements = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        "[data-webgl-scene]"
+      )
     );
 
+    if (!sceneElements.length) {
+      return;
+    }
 
-    /*
-     * -----------------------------------------------------
-     * Render
-     * -----------------------------------------------------
-     */
+    const scenes: ScrollScene[] = [];
 
-    scene.onBeforeRender = (delta) => {
-      const currentTime =
-        uTime.value as number;
+    sceneElements.forEach((element) => {
+      const sceneType =
+        element.dataset.webglScene;
 
-      uTime.value =
-        currentTime +
-        delta * 0.001;
-    };
+      /*
+       * -----------------------------------------------------
+       * Scene
+       * -----------------------------------------------------
+       */
 
-const updateScroll = () => {
-  const rect = element.getBoundingClientRect();
+      const drawable = new Drawable(gl);
 
-  const progress =
-    -rect.top /
-    Math.max(window.innerHeight, 1);
+      const scene = new ScrollScene({
+        element,
+        scene: drawable,
+      });
 
-  uScroll.value = Math.max(
-    0,
-    Math.min(1, progress)
-  );
-};
+      /*
+       * -----------------------------------------------------
+       * Shared uniforms
+       * -----------------------------------------------------
+       */
 
-window.addEventListener(
-  "scroll",
-  updateScroll,
-  { passive: true }
-);
+      const uTime = new Uniform({
+        name: "u_time",
+        value: 0,
+        kind: "float",
+      });
 
-updateScroll();
+      const uMouse = new Uniform({
+        name: "u_mouse",
+        value: [0, 0],
+        kind: "float_vec2",
+      });
 
-    renderer.addScene(scene);
+      const uScroll = new Uniform({
+        name: "u_scroll",
+        value: 0,
+        kind: "float",
+      });
 
+      /*
+       * -----------------------------------------------------
+       * Select shader
+       * -----------------------------------------------------
+       */
+
+      const vertexShader =
+        sceneType === "services"
+          ? servicesVertexShader
+          : heroVertexShader;
+
+      const fragmentShader =
+        sceneType === "services"
+          ? servicesFragmentShader
+          : heroFragmentShader;
+
+      /*
+       * -----------------------------------------------------
+       * Mesh
+       * -----------------------------------------------------
+       */
+
+      new Mesh(gl, {
+        geometry: new Triangle(gl),
+
+        program: new Program(gl, {
+          vertex: vertexShader,
+          fragment: fragmentShader,
+
+          uniforms: {
+            ...scene.uniforms,
+            u_time: uTime,
+            u_mouse: uMouse,
+            u_scroll: uScroll,
+          },
+
+          transparent: true,
+        }),
+      }).setParent(drawable);
+
+      /*
+       * -----------------------------------------------------
+       * Mouse
+       * -----------------------------------------------------
+       */
+
+      const handlePointerMove = (
+        event: PointerEvent
+      ) => {
+        const x =
+          (event.clientX / window.innerWidth) * 2 - 1;
+
+        const y =
+          1 -
+          (event.clientY / window.innerHeight) * 2;
+
+        uMouse.value = [x, y];
+      };
+
+      window.addEventListener(
+        "pointermove",
+        handlePointerMove,
+        { passive: true }
+      );
+
+      /*
+       * -----------------------------------------------------
+       * Render
+       * -----------------------------------------------------
+       */
+
+      scene.onBeforeRender = (delta) => {
+        const currentTime =
+          uTime.value as number;
+
+        uTime.value =
+          currentTime +
+          delta * 0.001;
+
+        const rect =
+          element.getBoundingClientRect();
+
+        const progress =
+          -rect.top /
+          Math.max(window.innerHeight, 1);
+
+        uScroll.value = Math.max(
+          0,
+          Math.min(1, progress)
+        );
+      };
+
+      renderer.addScene(scene);
+
+      scenes.push(scene);
+
+      /*
+       * Store cleanup function on the scene.
+       *
+       * This lets us remove the pointer listener
+       * when the component unmounts.
+       */
+      (
+        scene as ScrollScene & {
+          __mmCleanup?: () => void;
+        }
+      ).__mmCleanup = () => {
+        window.removeEventListener(
+          "pointermove",
+          handlePointerMove
+        );
+      };
+    });
 
     /*
      * -----------------------------------------------------
@@ -176,16 +207,16 @@ updateScroll();
      */
 
     return () => {
-      window.removeEventListener(
-        "pointermove",
-        handlePointerMove
-      );
-      window.removeEventListener(
-  "scroll",
-  updateScroll
-);
+      scenes.forEach((scene) => {
+        const sceneWithCleanup =
+          scene as ScrollScene & {
+            __mmCleanup?: () => void;
+          };
 
-      renderer.removeScene?.(scene);
+        sceneWithCleanup.__mmCleanup?.();
+
+        renderer.removeScene?.(scene);
+      });
     };
   }, [renderer]);
 

@@ -34,6 +34,7 @@ export default function Services() {
     <ServicesAnimation>
     <section
       id="services"
+      data-webgl-scene="services"
       className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
     >
       <Container>

@@ -6,7 +6,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      data-webgl-scene
+      data-webgl-scene="hero"
       className="relative z-10 min-h-screen overflow-hidden"
     >
   <HeroSectionTransition />
