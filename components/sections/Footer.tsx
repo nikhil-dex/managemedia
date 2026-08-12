@@ -83,6 +83,8 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
+                  data-cursor
+data-cursor-label={link.label}
                   className="group flex items-center justify-between border-b border-white/[0.06] py-3 text-sm uppercase tracking-[0.04em] text-white/60 transition-colors duration-300 hover:text-white"
                 >
                   <span>{link.label}</span>
@@ -109,6 +111,8 @@ export default function Footer() {
             <div className="flex flex-col gap-4">
               <a
                 href="mailto:Managemedia2019@gmail.com"
+                data-cursor
+data-cursor-label="EMAIL"
                 className="break-all text-sm text-white/60 transition-colors duration-300 hover:text-[var(--mm-accent)]"
               >
                 Managemedia2019@gmail.com
@@ -116,6 +120,8 @@ export default function Footer() {
 
               <a
                 href="tel:+919315226146"
+                data-cursor
+data-cursor-label="PHONE"
                 className="text-sm text-white/60 transition-colors duration-300 hover:text-[var(--mm-accent)]"
               >
                 +91-9315226146

@@ -8,10 +8,12 @@ import Testimonials from "@/components/sections/Testimonials";
 import About from "@/components/sections/About";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/sections/Footer";
+import CustomCursor from "@/components/effects/CustomCursor";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
+      <CustomCursor />
       <WebGLCanvas>
         <WebGLScene />
       </WebGLCanvas>

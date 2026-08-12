@@ -64,6 +64,8 @@ export default function Contact() {
             data-contact-item
               key={detail.label}
               href={detail.href}
+              data-cursor
+data-cursor-label={detail.label}
               className="group flex flex-col gap-4 border-b border-[var(--mm-border)] py-7 md:grid md:grid-cols-[180px_1fr_auto] md:items-center md:py-9"
             >
               <span className="mm-mono text-xs text-white/35">

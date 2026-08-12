@@ -80,6 +80,8 @@ export default function WorkCTA() {
     <a
       ref={linkRef}
       href={PROJECTS_URL}
+      data-cursor
+data-cursor-label="VIEW"
       target="_blank"
       rel="noopener noreferrer"
       onMouseEnter={handleEnter}

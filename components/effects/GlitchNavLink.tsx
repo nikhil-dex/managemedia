@@ -15,76 +15,162 @@ export default function GlitchNavLink({
 }: GlitchNavLinkProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
+  const ghostARef = useRef<HTMLSpanElement>(null);
+  const ghostBRef = useRef<HTMLSpanElement>(null);
+  const scanlineRef = useRef<HTMLSpanElement>(null);
+  const patternRef = useRef<HTMLSpanElement>(null);
   const accentRef = useRef<HTMLSpanElement>(null);
-  const glitchRef = useRef<HTMLSpanElement>(null);
 
-  const shouldAnimate = () =>
-    !window.matchMedia(
+  const canAnimate = () => {
+    return !window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+  };
 
   const handleEnter = () => {
-    if (!shouldAnimate()) return;
+    if (!canAnimate()) return;
 
     const text = textRef.current;
+    const ghostA = ghostARef.current;
+    const ghostB = ghostBRef.current;
+    const scanline = scanlineRef.current;
+    const pattern = patternRef.current;
     const accent = accentRef.current;
-    const glitch = glitchRef.current;
 
-    if (!text || !accent || !glitch) return;
+    if (
+      !text ||
+      !ghostA ||
+      !ghostB ||
+      !scanline ||
+      !pattern ||
+      !accent
+    ) {
+      return;
+    }
 
-    gsap.killTweensOf([text, accent, glitch]);
+    gsap.killTweensOf([
+      text,
+      ghostA,
+      ghostB,
+      scanline,
+      pattern,
+      accent,
+    ]);
 
-    const timeline = gsap.timeline();
+    /*
+     * Main text displacement
+     */
+    const textTimeline = gsap.timeline();
 
-    // Main text: short digital displacement.
-    timeline
+    textTimeline
       .to(text, {
         x: -3,
         skewX: -8,
-        duration: 0.05,
+        duration: 0.045,
         ease: "steps(1)",
       })
       .to(text, {
         x: 4,
-        skewX: 6,
-        duration: 0.05,
+        skewX: 7,
+        duration: 0.045,
         ease: "steps(1)",
       })
       .to(text, {
         x: -2,
-        skewX: -3,
-        duration: 0.05,
+        skewX: -4,
+        duration: 0.045,
+        ease: "steps(1)",
+      })
+      .to(text, {
+        x: 2,
+        skewX: 2,
+        duration: 0.045,
         ease: "steps(1)",
       })
       .to(text, {
         x: 0,
         skewX: 0,
-        duration: 0.12,
+        duration: 0.16,
         ease: "power2.out",
       });
 
-    // Retro ghost layer.
+    /*
+     * Ghost displacement layers
+     */
     gsap.fromTo(
-      glitch,
+      ghostA,
       {
-        x: -3,
-        y: 0,
+        x: -5,
         opacity: 0,
         clipPath: "inset(0 100% 0 0)",
       },
       {
-        x: 3,
-        y: 0,
-        opacity: 0.65,
+        x: 4,
+        opacity: 0.55,
         clipPath: "inset(0 0% 0 0)",
         duration: 0.08,
         ease: "steps(1)",
+        repeat: 4,
         yoyo: true,
-        repeat: 3,
       }
     );
 
-    // Green accent line.
+    gsap.fromTo(
+      ghostB,
+      {
+        x: 5,
+        opacity: 0,
+        clipPath: "inset(0 0 0 100%)",
+      },
+      {
+        x: -4,
+        opacity: 0.35,
+        clipPath: "inset(0 0 0 0%)",
+        duration: 0.065,
+        ease: "steps(1)",
+        repeat: 3,
+        yoyo: true,
+      }
+    );
+
+    /*
+     * Scanline sweep
+     */
+    gsap.fromTo(
+      scanline,
+      {
+        yPercent: -120,
+        opacity: 0,
+      },
+      {
+        yPercent: 120,
+        opacity: 0.7,
+        duration: 0.42,
+        ease: "none",
+      }
+    );
+
+    /*
+     * Repeating scanline pattern
+     */
+    gsap.fromTo(
+      pattern,
+      {
+        backgroundPositionY: "0px",
+        opacity: 0,
+      },
+      {
+        backgroundPositionY: "12px",
+        opacity: 0.45,
+        duration: 0.18,
+        ease: "none",
+        repeat: 4,
+      }
+    );
+
+    /*
+     * Green accent
+     */
     gsap.fromTo(
       accent,
       {
@@ -94,41 +180,51 @@ export default function GlitchNavLink({
       {
         scaleX: 1,
         opacity: 1,
-        duration: 0.3,
+        duration: 0.28,
         ease: "power3.out",
       }
     );
   };
 
   const handleLeave = () => {
-    if (!shouldAnimate()) return;
+    const elements = [
+      textRef.current,
+      ghostARef.current,
+      ghostBRef.current,
+      scanlineRef.current,
+      patternRef.current,
+      accentRef.current,
+    ];
 
-    const text = textRef.current;
-    const accent = accentRef.current;
-    const glitch = glitchRef.current;
+    gsap.killTweensOf(elements);
 
-    if (!text || !accent || !glitch) return;
+    if (!canAnimate()) return;
 
-    gsap.killTweensOf([text, accent, glitch]);
-
-    gsap.to(text, {
+    gsap.to(textRef.current, {
       x: 0,
       skewX: 0,
       duration: 0.18,
       ease: "power2.out",
     });
 
-    gsap.to(glitch, {
-      opacity: 0,
-      x: 0,
-      duration: 0.12,
-      ease: "power2.out",
-    });
+    gsap.to(
+      [
+        ghostARef.current,
+        ghostBRef.current,
+        scanlineRef.current,
+        patternRef.current,
+      ],
+      {
+        opacity: 0,
+        duration: 0.12,
+        ease: "power2.out",
+      }
+    );
 
-    gsap.to(accent, {
+    gsap.to(accentRef.current, {
       scaleX: 0,
       opacity: 0,
-      duration: 0.25,
+      duration: 0.22,
       ease: "power3.inOut",
     });
   };
@@ -143,25 +239,53 @@ export default function GlitchNavLink({
     >
       <span
         ref={textRef}
-        className="relative z-10 block"
+        className="relative z-20 block"
       >
         {children}
       </span>
 
-      {/* Retro glitch ghost */}
+      {/* Ghost layer A */}
       <span
-        ref={glitchRef}
+        ref={ghostARef}
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-2 z-0 block text-[var(--mm-accent)] opacity-0"
+        className="pointer-events-none absolute inset-0 z-10 block text-[var(--mm-accent)] opacity-0"
       >
         {children}
       </span>
 
-      {/* Accent line */}
+      {/* Ghost layer B */}
+      <span
+        ref={ghostBRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10 block text-white opacity-0"
+      >
+        {children}
+      </span>
+
+      {/* Scanline */}
+      <span
+        ref={scanlineRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-30 h-px bg-[var(--mm-accent)] opacity-0"
+      />
+
+      {/* Scanline pattern */}
+      <span
+        ref={patternRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-30 opacity-0"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(217,255,0,0.18) 4px)",
+          backgroundSize: "100% 8px",
+        }}
+      />
+
+      {/* Accent underline */}
       <span
         ref={accentRef}
         aria-hidden="true"
-        className="absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-[var(--mm-accent)] opacity-0"
+        className="absolute bottom-0 left-0 z-40 h-px w-full origin-left scale-x-0 bg-[var(--mm-accent)] opacity-0"
       />
     </Link>
   );
