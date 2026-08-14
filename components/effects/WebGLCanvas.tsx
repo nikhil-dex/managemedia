@@ -69,6 +69,13 @@ export default function WebGLCanvas({
   children,
 }: WebGLCanvasProps) {
   useEffect(() => {
+    const supportsWebGLInteraction = window.matchMedia(
+    "(hover: hover) and (pointer: fine)"
+  ).matches;
+
+  if (!supportsWebGLInteraction) {
+    return;
+  }
     const renderer = new ScrollRenderer({
       rendererProps: {
         antialias: true,
