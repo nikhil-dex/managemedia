@@ -3,10 +3,10 @@ import AboutIntroAnimation from "./AboutIntroAnimation";
 
 export default function About() {
   return (
-    <section
-      id="about"
-      className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
-    >
+   <section
+  id="about"
+  className="relative z-10 overflow-x-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
+>
 
      <AboutIntroAnimation>
       <Container>

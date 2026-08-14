@@ -143,44 +143,55 @@ export default function AboutIntroAnimation({
        *
        * This is the new reference-style effect.
        */
+/*
+ * Scroll-driven title movement
+ *
+ * Desktop only.
+ * On mobile the title stays centered so it
+ * cannot create horizontal overflow.
+ */
 
-      const scrollTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-        },
-      });
+const mm = gsap.matchMedia();
 
-      scrollTimeline
-        .to(
-          titleLines[0],
-          {
-            x: 70,
-            rotation: 0.6,
-            ease: "none",
-          },
-          0
-        )
-        .to(
-          titleLines[1],
-          {
-            x: -55,
-            rotation: -0.5,
-            ease: "none",
-          },
-          0
-        )
-        .to(
-          titleLines[2],
-          {
-            x: 80,
-            rotation: 0.7,
-            ease: "none",
-          },
-          0
-        );
+mm.add("(min-width: 768px)", () => {
+  const scrollTimeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1,
+    },
+  });
+
+  scrollTimeline
+    .to(
+      titleLines[0],
+      {
+        x: 70,
+        rotation: 0.6,
+        ease: "none",
+      },
+      0
+    )
+    .to(
+      titleLines[1],
+      {
+        x: -55,
+        rotation: -0.5,
+        ease: "none",
+      },
+      0
+    )
+    .to(
+      titleLines[2],
+      {
+        x: 80,
+        rotation: 0.7,
+        ease: "none",
+      },
+      0
+    );
+});
     }, root);
 
     return () => {

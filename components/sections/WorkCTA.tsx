@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { gsap } from "gsap";
+import Magnetic from "@/components/effects/Magnetic";
 
 const PROJECTS_URL =
   "https://linktr.ee/Managemedia.in?utm_source=linktree_profile_share";
@@ -88,10 +89,11 @@ data-cursor-label="VIEW"
       onMouseLeave={handleLeave}
       className="group flex w-fit items-center gap-5 font-[var(--font-inter)] text-sm font-medium uppercase tracking-[0.08em]"
     >
-      <span ref={labelRef}>
-        View our work
-      </span>
-
+      <Magnetic>
+        <span ref={labelRef}>
+          View our work
+        </span>
+      </Magnetic>
       <span
         ref={arrowRef}
         aria-hidden="true"

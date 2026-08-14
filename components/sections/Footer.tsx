@@ -1,5 +1,6 @@
 import Container from "@/components/layout/Container";
 import FooterAnimation from "./FooterAnimation";
+import Magnetic from "@/components/effects/Magnetic";
 
 const footerLinks = [
   { label: "Work", href: "#work" },
@@ -35,6 +36,7 @@ export default function Footer() {
               className="text-[var(--mm-accent)]">.</span>
             </h2>
 
+            <Magnetic strength={10}>
             <div className="mt-10 flex items-center gap-4">
               <span className="mm-mono text-xs uppercase text-white/45 transition-colors duration-300 group-hover:text-white">
                 Start a conversation
@@ -49,6 +51,7 @@ export default function Footer() {
                 <span className="absolute right-0 top-0 h-3 w-3 border-r border-t border-current" />
               </span>
             </div>
+            </Magnetic>
           </a>
         </div>
 

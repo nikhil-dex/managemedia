@@ -1,7 +1,7 @@
 import Container from "@/components/layout/Container";
 import WorkCTA from "./WorkCTA";
 import WorkAnimation from "./WorkAnimation";
-
+import Magnetic from "@/components/effects/Magnetic";
 export default function Work() {
   return (
     <WorkAnimation>
@@ -19,11 +19,13 @@ export default function Work() {
             ManageMedia / 003
           </span>
 
+
           <span className="mm-mono hidden text-right text-white/35 sm:block">
             Selected work
             <br />
             Digital experiences
           </span>
+
         </div>
 
         {/* Main heading */}
@@ -65,12 +67,14 @@ export default function Work() {
                   ManageMedia
                 </p>
 
+                <Magnetic>
                 <p className="max-w-xl font-[var(--font-inter-tight)] text-[clamp(2rem,5vw,5rem)] font-bold uppercase leading-[0.9] tracking-[-0.055em]">
                   Want to see
                   <br />
                   our work
                   <span className="text-[var(--mm-accent)]">?</span>
                 </p>
+                </Magnetic>
               </div>
             </div>
 
