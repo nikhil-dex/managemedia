@@ -70,7 +70,7 @@ export default function AboutIntroAnimation({
       gsap.set(titleLines, {
         opacity: 0,
         x: (index) =>
-          index % 2 === 0 ? 140 : -140,
+          index % 2 === 0 ? 110 : -110,
         skewX: (index) =>
           index % 2 === 0 ? -5 : 5,
       });

@@ -4,6 +4,7 @@ import ServicesAnimation from "./ServicesAnimation";
 import ScrambleText from "@/components/effects/ScrambleText";
 import Spotlight from "@/components/effects/Spotlight";
 import Marquee from "@/components/effects/Marquee";
+
 const services = [
   {
     number: "01",

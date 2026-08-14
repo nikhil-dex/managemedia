@@ -3,15 +3,17 @@ import GlitchNavLink from "@/components/effects/GlitchNavLink";
 import Link from "next/link";
 import { useLayoutEffect, useState,useRef } from "react";
 import { gsap } from "gsap";
-
+import { usePathname } from "next/navigation";
+import { handleNavigation } from "@/lib/navigation";
 const navigation = [
-  { label: "Work", href: "/work" },
+  { label: "Work", href: "/#work" },
   { label: "Services", href: "/services" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const navbarRef = useRef<HTMLElement>(null);
 const brandRef = useRef<HTMLAnchorElement>(null);
@@ -110,13 +112,22 @@ useLayoutEffect(() => {
           className="hidden items-center gap-8 md:flex"
         >
         {navigation.map((item) => (
-          <GlitchNavLink
-            key={item.href}
-            href={item.href}
-          >
-            {item.label}
-          </GlitchNavLink>
-        ))}
+  <GlitchNavLink
+    key={item.href}
+    href={item.href}
+    onClick={(event) => {
+      event.preventDefault();
+
+      handleNavigation(
+        item.href,
+        pathname,
+        () => setMenuOpen(false)
+      );
+    }}
+  >
+    {item.label}
+  </GlitchNavLink>
+))}
         </nav>
 
         {/* Menu button */}
@@ -177,7 +188,15 @@ useLayoutEffect(() => {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMenuOpen(false)}
+                onClick={(event) => {
+    event.preventDefault();
+
+    handleNavigation(
+      item.href,
+      pathname,
+      () => setMenuOpen(false)
+    );
+  }}
                 className={`group border-b border-[var(--mm-border)] py-5 font-[var(--font-inter-tight)] text-[clamp(3rem,13vw,6rem)] font-extrabold leading-[0.9] tracking-[-0.06em] transition-all duration-700 ${
                   menuOpen
                     ? "translate-y-0 opacity-100"
