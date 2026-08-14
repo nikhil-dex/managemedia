@@ -7,6 +7,7 @@ export default function Work() {
     <WorkAnimation>
     <section
       id="work"
+      
       className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
     >
       <Container>
@@ -47,6 +48,7 @@ export default function Work() {
         {/* Visual work panel */}
         <div className="mt-20 md:mt-32">
           <div
+          data-webgl-scene="work"
           data-work-panel
           className="relative overflow-hidden border border-[var(--mm-border)]">
             <div className="grid min-h-[420px] grid-cols-2 md:min-h-[600px] md:grid-cols-4">

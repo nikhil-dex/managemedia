@@ -1,6 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { gsap } from "gsap";
 import Container from "@/components/layout/Container";
 import TestimonialsAnimation from "./TestimonialsAnimation";
@@ -32,9 +36,12 @@ const quoteRef = useRef<HTMLQuoteElement>(null);
 const authorRef = useRef<HTMLDivElement>(null);
 const isAnimating = useRef(false);
   const [active, setActive] = useState(0);
+  const testimonialRef = useRef<HTMLDivElement>(null);
+const autoSwitchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+const isHovered = useRef(false);
 
   const testimonial = testimonials[active];
-  const changeTestimonial = (nextIndex: number) => {
+const changeTestimonial = (nextIndex: number) => {
   if (
     isAnimating.current ||
     nextIndex === active ||
@@ -54,6 +61,15 @@ const isAnimating = useRef(false);
   }
 
   isAnimating.current = true;
+  if (autoSwitchRef.current) {
+  clearTimeout(autoSwitchRef.current);
+  autoSwitchRef.current = null;
+}
+
+  const quote = quoteRef.current;
+  const author = authorRef.current;
+
+  gsap.killTweensOf([quote, author]);
 
   const timeline = gsap.timeline({
     onComplete: () => {
@@ -61,36 +77,179 @@ const isAnimating = useRef(false);
     },
   });
 
+  /*
+   * EXIT
+   * Stronger than the existing simple fade.
+   */
   timeline
     .to(
-      [quoteRef.current, authorRef.current],
+      quote,
       {
-        y: -30,
+        x: -80,
+        y: -20,
+        skewX: -5,
         opacity: 0,
-        duration: 0.35,
-        stagger: 0.04,
+        clipPath: "inset(0 100% 0 0)",
+        duration: 0.38,
         ease: "power3.in",
       }
     )
+    .to(
+      author,
+      {
+        x: -30,
+        opacity: 0,
+        duration: 0.25,
+        ease: "power2.in",
+      },
+      "-=0.22"
+    )
+
+    /*
+     * Change the testimonial only after
+     * the previous one has disappeared.
+     */
     .add(() => {
       setActive(nextIndex);
     })
-    .fromTo(
-      [quoteRef.current, authorRef.current],
+
+    /*
+     * Prepare incoming content.
+     */
+    .set(quote, {
+      x: 80,
+      y: 20,
+      skewX: 5,
+      opacity: 0,
+      clipPath: "inset(0 0 0 100%)",
+    })
+    .set(author, {
+      x: 30,
+      opacity: 0,
+    })
+
+    /*
+     * ENTER
+     */
+    .to(quote, {
+      x: 0,
+      y: 0,
+      skewX: 0,
+      opacity: 1,
+      clipPath: "inset(0 0 0 0%)",
+      duration: 0.65,
+      ease: "power4.out",
+    })
+    .to(
+      author,
       {
-        y: 30,
-        opacity: 0,
-      },
-      {
-        y: 0,
+        x: 0,
         opacity: 1,
-        duration: 0.55,
-        stagger: 0.06,
-        ease: "power4.out",
-      }
+        duration: 0.45,
+        ease: "power3.out",
+      },
+      "-=0.35"
     );
 };
 
+const restartAutoSwitch = () => {
+  if (
+    window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+  ) {
+    return;
+  }
+
+  if (isHovered.current || document.hidden) {
+    return;
+  }
+
+  if (autoSwitchRef.current) {
+    clearTimeout(autoSwitchRef.current);
+  }
+
+  autoSwitchRef.current = setTimeout(() => {
+    if (
+      !isHovered.current &&
+      !document.hidden &&
+      !isAnimating.current
+    ) {
+      changeTestimonial(
+        (active + 1) % testimonials.length
+      );
+    }
+  }, 5000);
+};
+
+useEffect(() => {
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if (reducedMotion) {
+    return;
+  }
+
+  const scheduleNext = () => {
+    if (autoSwitchRef.current) {
+      clearTimeout(autoSwitchRef.current);
+    }
+
+    if (
+      isHovered.current ||
+      document.hidden
+    ) {
+      return;
+    }
+
+    autoSwitchRef.current = setTimeout(() => {
+      if (
+        !isHovered.current &&
+        !document.hidden &&
+        !isAnimating.current
+      ) {
+        changeTestimonial(
+          (active + 1) % testimonials.length
+        );
+      }
+
+      scheduleNext();
+    }, 5000);
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      if (autoSwitchRef.current) {
+        clearTimeout(autoSwitchRef.current);
+        autoSwitchRef.current = null;
+      }
+
+      return;
+    }
+
+    scheduleNext();
+  };
+
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibilityChange
+  );
+
+  scheduleNext();
+
+  return () => {
+    document.removeEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    if (autoSwitchRef.current) {
+      clearTimeout(autoSwitchRef.current);
+      autoSwitchRef.current = null;
+    }
+  };
+}, [active]);
   return (
     <TestimonialsAnimation>
       <section
@@ -122,71 +281,103 @@ const isAnimating = useRef(false);
             </p>
           </div>
 
-          {/* Testimonial */}
-          <div>
-            <div
-              key={active}
-              className="min-h-[280px] overflow-hidden"
-            >
-              <blockquote
-              ref={quoteRef}
-              className="font-[var(--font-inter-tight)] text-[clamp(2.5rem,5.5vw,6rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.065em]">
-                “{testimonial.quote}”
-              </blockquote>
+         
+         {/* Testimonial */}
+<div>
+  <div
+    ref={testimonialRef}
+    onMouseEnter={() => {
+      isHovered.current = true;
 
-              <div
-              ref={authorRef}
-              data-testimonials-author
-              className="mt-12 border-t border-[var(--mm-border)] pt-5">
-                <p className="font-[var(--font-inter)] text-sm font-medium uppercase tracking-[0.06em]">
-                  {testimonial.name}
-                </p>
+      if (autoSwitchRef.current) {
+        clearTimeout(autoSwitchRef.current);
+        autoSwitchRef.current = null;
+      }
+    }}
+    onMouseLeave={() => {
+      isHovered.current = false;
+      restartAutoSwitch();
+    }}
+    onFocus={() => {
+      isHovered.current = true;
 
-                <p className="mt-1 text-sm text-white/40">
-                  {testimonial.role}
-                </p>
-              </div>
-            </div>
+      if (autoSwitchRef.current) {
+        clearTimeout(autoSwitchRef.current);
+        autoSwitchRef.current = null;
+      }
+    }}
+    onBlur={() => {
+      isHovered.current = false;
+      restartAutoSwitch();
+    }}
+  >
+    <div
+      key={active}
+      className="min-h-[280px] overflow-hidden"
+    >
+      <blockquote
+        ref={quoteRef}
+        className="font-[var(--font-inter-tight)] text-[clamp(2.5rem,5.5vw,6rem)] font-extrabold uppercase leading-[0.88] tracking-[-0.065em]"
+      >
+        “{testimonial.quote}”
+      </blockquote>
 
-            {/* Controls */}
-            <div
-            data-testimonials-controls
-            className="mt-12 flex items-center justify-between border-t border-[var(--mm-border)] pt-5">
-              <span className="mm-mono text-xs text-white/35">
-                0{active + 1} / 0{testimonials.length}
-              </span>
+      <div
+        ref={authorRef}
+        data-testimonials-author
+        className="mt-12 border-t border-[var(--mm-border)] pt-5"
+      >
+        <p className="font-[var(--font-inter)] text-sm font-medium uppercase tracking-[0.06em]">
+          {testimonial.name}
+        </p>
 
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  aria-label="Previous testimonial"
-                  onClick={() =>
-                    changeTestimonial(
-                      (active - 1 + testimonials.length) %
-                        testimonials.length
-                    )
-                  }
-                  className="flex h-10 w-10 items-center justify-center border border-white/15 text-white/60 transition-colors duration-300 hover:border-[var(--mm-accent)] hover:text-[var(--mm-accent)]"
-                >
-                  ←
-                </button>
+        <p className="mt-1 text-sm text-white/40">
+          {testimonial.role}
+        </p>
+      </div>
+    </div>
 
-                <button
-                  type="button"
-                  aria-label="Next testimonial"
-                  onClick={() =>
-                    changeTestimonial(
-                      (active + 1) % testimonials.length
-                    )
-                  }
-                  className="flex h-10 w-10 items-center justify-center border border-white/15 text-white/60 transition-colors duration-300 hover:border-[var(--mm-accent)] hover:text-[var(--mm-accent)]"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+    {/* Controls */}
+    <div
+      data-testimonials-controls
+      className="mt-12 flex items-center justify-between border-t border-[var(--mm-border)] pt-5"
+    >
+      <span className="mm-mono text-xs text-white/35">
+        0{active + 1} / 0{testimonials.length}
+      </span>
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          aria-label="Previous testimonial"
+          onClick={() =>
+            changeTestimonial(
+              (active - 1 + testimonials.length) %
+                testimonials.length
+            )
+          }
+          className="flex h-10 w-10 items-center justify-center border border-white/15 text-white/60 transition-colors duration-300 hover:border-[var(--mm-accent)] hover:text-[var(--mm-accent)]"
+        >
+          ←
+        </button>
+
+        <button
+          type="button"
+          aria-label="Next testimonial"
+          onClick={() =>
+            changeTestimonial(
+              (active + 1) % testimonials.length
+            )
+          }
+          className="flex h-10 w-10 items-center justify-center border border-white/15 text-white/60 transition-colors duration-300 hover:border-[var(--mm-accent)] hover:text-[var(--mm-accent)]"
+        >
+          →
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
       </Container>
     </section>
     </TestimonialsAnimation>

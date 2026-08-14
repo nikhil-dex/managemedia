@@ -23,6 +23,11 @@ import {
   servicesVertexShader,
 } from "@/lib/webgl/shaders/services";
 
+import {
+  workFragmentShader,
+  workVertexShader,
+} from "@/lib/webgl/shaders/work";
+
 export default function WebGLScene() {
   const { renderer } = useWebGL();
 
@@ -92,16 +97,19 @@ export default function WebGLScene() {
        * -----------------------------------------------------
        */
 
-      const vertexShader =
-        sceneType === "services"
-          ? servicesVertexShader
-          : heroVertexShader;
+const vertexShader =
+  sceneType === "services"
+    ? servicesVertexShader
+    : sceneType === "work"
+      ? workVertexShader
+      : heroVertexShader;
 
-      const fragmentShader =
-        sceneType === "services"
-          ? servicesFragmentShader
-          : heroFragmentShader;
-
+const fragmentShader =
+  sceneType === "services"
+    ? servicesFragmentShader
+    : sceneType === "work"
+      ? workFragmentShader
+      : heroFragmentShader;
       /*
        * -----------------------------------------------------
        * Mesh
