@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
+  
 
   useEffect(() => {
     const cursor = cursorRef.current;
@@ -13,11 +14,13 @@ export default function CustomCursor() {
 
     if (!cursor || !label) return;
 
-    const isDesktop = window.matchMedia(
-      "(hover: hover) and (pointer: fine)"
-    ).matches;
+const isDesktop = window.matchMedia(
+  "(hover: hover) and (pointer: fine)"
+).matches;
 
-    if (!isDesktop) return;
+if (!isDesktop) return;
+
+    
     document.documentElement.style.cursor = "none";
 document.body.style.cursor = "none";
 document.documentElement.classList.add("custom-cursor-active");
@@ -138,13 +141,14 @@ document.documentElement.classList.add("custom-cursor-active");
     };
   }, []);
 
+
    return (
     <>
   
     <div
       ref={cursorRef}
       aria-hidden="true"
-      className="pointer-events-none fixed z-[9999] flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--mm-accent)] mix-blend-difference"
+      className="pointer-events-none fixed z-[9999] hidden h-3 w-3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--mm-accent)] mix-blend-difference [@media(hover:hover)_and_(pointer:fine)]:flex"
     >
     <span
   ref={labelRef}

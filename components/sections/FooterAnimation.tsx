@@ -18,22 +18,17 @@ export default function FooterAnimation({
   useLayoutEffect(() => {
     const root = rootRef.current;
 
-    if (!root) {
-      return;
-    }
+    if (!root) return;
+
     const footer = root.querySelector("footer");
 
-if (!footer) {
-  return;
-}
+    if (!footer) return;
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    if (reducedMotion) {
-      return;
-    }
+    if (reducedMotion) return;
 
     const context = gsap.context(() => {
       const cta = root.querySelector("[data-footer-cta]");
@@ -43,13 +38,7 @@ if (!footer) {
       const bottom = root.querySelector("[data-footer-bottom]");
 
       const timeline = gsap.timeline({
-    
-        scrollTrigger: {
-           
-          trigger: footer,
-          start: "top 50%",
-   
-        },
+        paused: true,
         defaults: {
           ease: "power4.out",
         },
@@ -138,6 +127,36 @@ if (!footer) {
           "-=0.25"
         );
       }
+
+      const trigger = ScrollTrigger.create({
+        trigger: footer,
+        start: "top 75%",
+        once: true,
+        onEnter: () => {
+          timeline.play();
+        },
+      });
+
+      // Recalculate after the route has finished laying out.
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+
+      const refreshTimer = window.setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 300);
+
+      // Recalculate after fonts finish loading.
+      if (document.fonts) {
+        document.fonts.ready.then(() => {
+          ScrollTrigger.refresh();
+        });
+      }
+
+      return () => {
+        window.clearTimeout(refreshTimer);
+        trigger.kill();
+      };
     }, root);
 
     return () => {
