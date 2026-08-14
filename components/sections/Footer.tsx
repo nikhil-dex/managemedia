@@ -4,7 +4,7 @@ import Container from "@/components/layout/Container";
 import FooterAnimation from "./FooterAnimation";
 import { usePathname } from "next/navigation";
 import { handleNavigation } from "@/lib/navigation";
-
+import Link from "next/link";
 const footerLinks = [
   { label: "Work", href: "#work" },
   { label: "Services", href: "/services" },
@@ -42,18 +42,15 @@ export default function Footer() {
               ManageMedia / 007
             </p>
 
-            <a
-              href="/#contact"
-              onClick={(event) => {
+            <Link
+  href="/#contact"
+  onClick={(event) => {
     event.preventDefault();
 
-    handleNavigation(
-      "/#contact",
-      pathname
-    );
+    handleNavigation("/#contact", pathname);
   }}
-              className="group block"
-            >
+  className="group block"
+>
               <h2
                 data-footer-cta
                 className="max-w-[1500px] font-[var(--font-inter-tight)] text-[clamp(4rem,12vw,13rem)] font-extrabold uppercase leading-[0.76] tracking-[-0.08em]"
@@ -83,7 +80,7 @@ export default function Footer() {
                   <span className="absolute right-0 top-0 h-3 w-3 border-r border-t border-current" />
                 </span>
               </div>
-            </a>
+            </Link>
           </div>
 
           {/* Footer information */}

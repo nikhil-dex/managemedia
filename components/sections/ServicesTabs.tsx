@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { serviceCategories } from "@/data/services";
 import Container from "@/components/layout/Container";
 import Magnetic from "@/components/effects/Magnetic";
+import Link from "next/link";
 
 export default function ServicesTabs() {
   const [activeCategory, setActiveCategory] = useState(0);
@@ -253,7 +254,7 @@ useEffect(() => {
         {/* CTA */}
         <div className="mt-20 md:mt-28">
           <Magnetic strength={12}>
-            <a
+            <Link
               href="/#contact"
               className="group flex w-fit items-center gap-5"
             >
@@ -268,7 +269,7 @@ useEffect(() => {
                 <span className="absolute h-px w-10 rotate-[-45deg] bg-current" />
                 <span className="absolute right-0 top-0 h-3 w-3 border-r border-t border-current" />
               </span>
-            </a>
+            </Link>
           </Magnetic>
         </div>
       </Container>

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -44,7 +45,7 @@ const autoSwitchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 const isHovered = useRef(false);
 
   const testimonial = testimonials[active];
-const changeTestimonial = (nextIndex: number) => {
+const changeTestimonial = useCallback((nextIndex: number) => {
   if (
     isAnimating.current ||
     nextIndex === active ||
@@ -153,7 +154,7 @@ const changeTestimonial = (nextIndex: number) => {
       },
       "-=0.35"
     );
-};
+}, [active]);
 
 const restartAutoSwitch = () => {
   if (
@@ -252,7 +253,7 @@ useEffect(() => {
       autoSwitchRef.current = null;
     }
   };
-}, [active]);
+}, [active, changeTestimonial]);
 
 const handlePointerDown = (
   event: React.PointerEvent<HTMLDivElement>

@@ -39,9 +39,7 @@ export default function AboutIntroAnimation({
         "[data-about-label]"
       );
 
-      const title = section.querySelector(
-        "[data-about-title]"
-      );
+      
 
       const titleLines = section.querySelectorAll(
         "[data-about-line]"

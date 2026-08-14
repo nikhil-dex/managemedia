@@ -7,6 +7,7 @@ import Link from "next/link";
 interface GlitchNavLinkProps {
   children: React.ReactNode;
   href: string;
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
 const SCRAMBLE_CHARS =
@@ -15,6 +16,7 @@ const SCRAMBLE_CHARS =
 export default function GlitchNavLink({
   children,
   href,
+  onClick,
 }: GlitchNavLinkProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
@@ -311,12 +313,13 @@ export default function GlitchNavLink({
 
   return (
     <Link
-      ref={linkRef}
-      href={href}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      className="group relative py-2 font-[var(--font-inter)] text-sm font-medium"
-    >
+  ref={linkRef}
+  href={href}
+  onClick={onClick}
+  onMouseEnter={handleEnter}
+  onMouseLeave={handleLeave}
+  className="group relative py-2 font-[var(--font-inter)] text-sm font-medium"
+>
       <span
         ref={textRef}
         className="relative z-20 block"
