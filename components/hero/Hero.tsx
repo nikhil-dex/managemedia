@@ -1,7 +1,7 @@
 import Container from "@/components/layout/Container";
 import HeroIntroAnimation from "./HeroIntroAnimation";
 import HeroSectionTransition from "@/components/effects/HeroSectionTransition";
-
+import AuroraBackground from "@/components/effects/AuroraBackground";
 export default function Hero() {
   return (
     <section
@@ -9,6 +9,7 @@ export default function Hero() {
       data-webgl-scene="hero"
       className="relative z-10 min-h-screen overflow-hidden"
     >
+      <AuroraBackground />
   <HeroSectionTransition />
         <HeroIntroAnimation>
       <Container className="flex min-h-screen flex-col justify-between pb-8 pt-28 md:pb-10 md:pt-32">

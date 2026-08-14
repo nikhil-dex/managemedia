@@ -1,6 +1,9 @@
 import Container from "@/components/layout/Container";
 import ServiceRow from "./ServiceRow";
 import ServicesAnimation from "./ServicesAnimation";
+import ScrambleText from "@/components/effects/ScrambleText";
+import Spotlight from "@/components/effects/Spotlight";
+import Marquee from "@/components/effects/Marquee";
 const services = [
   {
     number: "01",
@@ -37,14 +40,15 @@ export default function Services() {
       data-webgl-scene="services"
       className="relative z-10 overflow-hidden border-t border-[var(--mm-border)] py-24 md:py-32 lg:py-40"
     >
+       <Spotlight />
       <Container>
         {/* Section heading */}
         <div className="mb-20 flex flex-col gap-8 md:mb-28 md:flex-row md:items-start md:justify-between">
-          <div
+          <ScrambleText
           data-services-meta
           className="mm-mono text-white/45">
             Services / 002
-          </div>
+          </ScrambleText>
 
           <div className="max-w-2xl">
             <h2 
@@ -76,6 +80,14 @@ export default function Services() {
   />
 ))}
         </div>
+        <Marquee
+  items={[
+    "Strategy",
+    "Creative",
+    "Digital",
+    "Technology",
+  ]}
+/>
 
         {/* Closing statement */}
         <div className="mt-20 flex justify-end md:mt-28">

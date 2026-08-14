@@ -34,16 +34,24 @@ export default function About() {
           </p>
 
           <h2
-          data-about-title
-          className="font-[var(--font-inter-tight)] text-[clamp(3.5rem,9vw,10rem)] font-extrabold uppercase leading-[0.8] tracking-[-0.075em]">
-            Strategy.
-            <br />
-            Creativity.
-            <br />
-            <span className="text-white/45">
-              Technology.
-            </span>
-          </h2>
+  data-about-title
+  className="font-[var(--font-inter-tight)] text-[clamp(3.5rem,9vw,10rem)] font-extrabold uppercase leading-[0.8] tracking-[-0.075em]"
+>
+  <span data-about-line className="block">
+    Strategy.
+  </span>
+
+  <span data-about-line className="block">
+    Creativity.
+  </span>
+
+  <span
+    data-about-line
+    className="block text-white/45"
+  >
+    Technology.
+  </span>
+</h2>
         </div>
 
         {/* Supporting content */}

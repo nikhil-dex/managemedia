@@ -37,6 +37,9 @@ const authorRef = useRef<HTMLDivElement>(null);
 const isAnimating = useRef(false);
   const [active, setActive] = useState(0);
   const testimonialRef = useRef<HTMLDivElement>(null);
+  const dragStartX = useRef(0);
+const dragX = useRef(0);
+const isDragging = useRef(false);
 const autoSwitchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 const isHovered = useRef(false);
 
@@ -250,6 +253,128 @@ useEffect(() => {
     }
   };
 }, [active]);
+
+const handlePointerDown = (
+  event: React.PointerEvent<HTMLDivElement>
+) => {
+  if (
+    window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+  ) {
+    return;
+  }
+
+  if (isAnimating.current) {
+    return;
+  }
+
+  isDragging.current = true;
+  dragStartX.current = event.clientX;
+  dragX.current = 0;
+
+  event.currentTarget.setPointerCapture(
+    event.pointerId
+  );
+
+  if (autoSwitchRef.current) {
+    clearTimeout(autoSwitchRef.current);
+    autoSwitchRef.current = null;
+  }
+
+  if (quoteRef.current) {
+    gsap.killTweensOf(quoteRef.current);
+  }
+};
+
+const handlePointerMove = (
+  event: React.PointerEvent<HTMLDivElement>
+) => {
+  if (
+    !isDragging.current ||
+    !quoteRef.current
+  ) {
+    return;
+  }
+
+  dragX.current =
+    event.clientX - dragStartX.current;
+
+  const limitedX = Math.max(
+    -180,
+    Math.min(180, dragX.current)
+  );
+
+  const resistance =
+    Math.abs(limitedX) > 100
+      ? 0.65
+      : 0.85;
+
+  const x = limitedX * resistance;
+
+  gsap.set(quoteRef.current, {
+    x,
+    skewX: x * -0.025,
+    opacity:
+      1 -
+      Math.min(
+        Math.abs(x) / 500,
+        0.28
+      ),
+  });
+};
+
+const handlePointerUp = (
+  event: React.PointerEvent<HTMLDivElement>
+) => {
+  if (
+    !isDragging.current ||
+    !quoteRef.current
+  ) {
+    return;
+  }
+
+  isDragging.current = false;
+
+  try {
+    event.currentTarget.releasePointerCapture(
+      event.pointerId
+    );
+  } catch {
+    // Pointer capture may already be released.
+  }
+
+  const threshold = 90;
+  const distance = dragX.current;
+
+  if (Math.abs(distance) >= threshold) {
+    if (distance < 0) {
+      changeTestimonial(
+        (active + 1) % testimonials.length
+      );
+    } else {
+      changeTestimonial(
+        (active - 1 + testimonials.length) %
+          testimonials.length
+      );
+    }
+
+    return;
+  }
+
+  /*
+   * Didn't drag far enough:
+   * smoothly spring back.
+   */
+  gsap.to(quoteRef.current, {
+    x: 0,
+    skewX: 0,
+    opacity: 1,
+    duration: 0.55,
+    ease: "elastic.out(1, 0.55)",
+    onComplete: restartAutoSwitch,
+  });
+};
   return (
     <TestimonialsAnimation>
       <section
@@ -310,10 +435,18 @@ useEffect(() => {
       isHovered.current = false;
       restartAutoSwitch();
     }}
+    onPointerDown={handlePointerDown}
+  onPointerMove={handlePointerMove}
+  onPointerUp={handlePointerUp}
+  onPointerCancel={handlePointerUp}
+  style={{
+    touchAction: "pan-y",
+    cursor: "grab",
+  }}
   >
     <div
       key={active}
-      className="min-h-[280px] overflow-hidden"
+      className="min-h-[280px] overflow-hidden select-none"
     >
       <blockquote
         ref={quoteRef}

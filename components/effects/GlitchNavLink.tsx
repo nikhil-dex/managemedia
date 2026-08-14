@@ -9,6 +9,9 @@ interface GlitchNavLinkProps {
   href: string;
 }
 
+const SCRAMBLE_CHARS =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*";
+
 export default function GlitchNavLink({
   children,
   href,
@@ -21,10 +24,73 @@ export default function GlitchNavLink({
   const patternRef = useRef<HTMLSpanElement>(null);
   const accentRef = useRef<HTMLSpanElement>(null);
 
+  const scrambleRef = useRef<number | null>(null);
+
   const canAnimate = () => {
     return !window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+  };
+
+  const scrambleText = () => {
+    const text = textRef.current;
+
+    if (!text || !canAnimate()) {
+      return;
+    }
+
+    const original = String(children);
+    const start = performance.now();
+    const duration = 380;
+
+    if (scrambleRef.current) {
+      cancelAnimationFrame(scrambleRef.current);
+    }
+
+    const animate = (now: number) => {
+      const progress = Math.min(
+        (now - start) / duration,
+        1
+      );
+
+      const resolved = Math.floor(
+        progress * original.length
+      );
+
+      let output = "";
+
+      for (let i = 0; i < original.length; i++) {
+        if (original[i] === " ") {
+          output += " ";
+          continue;
+        }
+
+        if (i < resolved) {
+          output += original[i];
+        } else {
+          output +=
+            SCRAMBLE_CHARS[
+              Math.floor(
+                Math.random() *
+                  SCRAMBLE_CHARS.length
+              )
+            ];
+        }
+      }
+
+      text.textContent = output;
+
+      if (progress < 1) {
+        scrambleRef.current =
+          requestAnimationFrame(animate);
+      } else {
+        text.textContent = original;
+        scrambleRef.current = null;
+      }
+    };
+
+    scrambleRef.current =
+      requestAnimationFrame(animate);
   };
 
   const handleEnter = () => {
@@ -48,6 +114,8 @@ export default function GlitchNavLink({
       return;
     }
 
+    scrambleText();
+
     gsap.killTweensOf([
       text,
       ghostA,
@@ -58,7 +126,7 @@ export default function GlitchNavLink({
     ]);
 
     /*
-     * Main text displacement
+     * Main glitch displacement
      */
     const textTimeline = gsap.timeline();
 
@@ -95,7 +163,7 @@ export default function GlitchNavLink({
       });
 
     /*
-     * Ghost displacement layers
+     * Ghost layer A
      */
     gsap.fromTo(
       ghostA,
@@ -115,6 +183,9 @@ export default function GlitchNavLink({
       }
     );
 
+    /*
+     * Ghost layer B
+     */
     gsap.fromTo(
       ghostB,
       {
@@ -187,6 +258,11 @@ export default function GlitchNavLink({
   };
 
   const handleLeave = () => {
+    if (scrambleRef.current) {
+      cancelAnimationFrame(scrambleRef.current);
+      scrambleRef.current = null;
+    }
+
     const elements = [
       textRef.current,
       ghostARef.current,
@@ -199,6 +275,10 @@ export default function GlitchNavLink({
     gsap.killTweensOf(elements);
 
     if (!canAnimate()) return;
+
+    if (textRef.current) {
+      textRef.current.textContent = String(children);
+    }
 
     gsap.to(textRef.current, {
       x: 0,
@@ -244,7 +324,6 @@ export default function GlitchNavLink({
         {children}
       </span>
 
-      {/* Ghost layer A */}
       <span
         ref={ghostARef}
         aria-hidden="true"
@@ -253,7 +332,6 @@ export default function GlitchNavLink({
         {children}
       </span>
 
-      {/* Ghost layer B */}
       <span
         ref={ghostBRef}
         aria-hidden="true"
@@ -262,14 +340,12 @@ export default function GlitchNavLink({
         {children}
       </span>
 
-      {/* Scanline */}
       <span
         ref={scanlineRef}
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 z-30 h-px bg-[var(--mm-accent)] opacity-0"
       />
 
-      {/* Scanline pattern */}
       <span
         ref={patternRef}
         aria-hidden="true"
@@ -281,7 +357,6 @@ export default function GlitchNavLink({
         }}
       />
 
-      {/* Accent underline */}
       <span
         ref={accentRef}
         aria-hidden="true"

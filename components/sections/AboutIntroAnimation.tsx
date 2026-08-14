@@ -43,6 +43,10 @@ export default function AboutIntroAnimation({
         "[data-about-title]"
       );
 
+      const titleLines = section.querySelectorAll(
+        "[data-about-line]"
+      );
+
       const content = section.querySelector(
         "[data-about-content]"
       );
@@ -50,6 +54,10 @@ export default function AboutIntroAnimation({
       const items = section.querySelectorAll(
         "[data-about-item]"
       );
+
+      /*
+       * Initial state
+       */
 
       gsap.set(
         [meta, label, content, ...Array.from(items)],
@@ -59,14 +67,19 @@ export default function AboutIntroAnimation({
         }
       );
 
-      if (title) {
-        gsap.set(title, {
-          opacity: 0,
-          y: 60,
-        });
-      }
+      gsap.set(titleLines, {
+        opacity: 0,
+        x: (index) =>
+          index % 2 === 0 ? 140 : -140,
+        skewX: (index) =>
+          index % 2 === 0 ? -5 : 5,
+      });
 
-      const timeline = gsap.timeline({
+      /*
+       * Entrance animation
+       */
+
+      const entrance = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top 75%",
@@ -74,7 +87,7 @@ export default function AboutIntroAnimation({
         },
       });
 
-      timeline
+      entrance
         .to(meta, {
           opacity: 1,
           y: 0,
@@ -92,11 +105,13 @@ export default function AboutIntroAnimation({
           "-=0.25"
         )
         .to(
-          title,
+          titleLines,
           {
             opacity: 1,
-            y: 0,
+            x: 0,
+            skewX: 0,
             duration: 0.9,
+            stagger: 0.1,
             ease: "power4.out",
           },
           "-=0.2"
@@ -121,6 +136,50 @@ export default function AboutIntroAnimation({
             ease: "power3.out",
           },
           "-=0.3"
+        );
+
+      /*
+       * Scroll-driven title movement
+       *
+       * This is the new reference-style effect.
+       */
+
+      const scrollTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+        },
+      });
+
+      scrollTimeline
+        .to(
+          titleLines[0],
+          {
+            x: 70,
+            rotation: 0.6,
+            ease: "none",
+          },
+          0
+        )
+        .to(
+          titleLines[1],
+          {
+            x: -55,
+            rotation: -0.5,
+            ease: "none",
+          },
+          0
+        )
+        .to(
+          titleLines[2],
+          {
+            x: 80,
+            rotation: 0.7,
+            ease: "none",
+          },
+          0
         );
     }, root);
 

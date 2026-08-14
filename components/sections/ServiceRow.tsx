@@ -29,30 +29,33 @@ export default function ServiceRow({
       return;
     }
 
-    const prefersReducedMotion =
-      window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
     if (prefersReducedMotion) {
       return;
     }
 
     gsap.killTweensOf([
+      rowRef.current,
       lineRef.current,
       titleRef.current,
       arrowRef.current,
     ]);
 
+    /*
+     * Reference 3D tilt starts with a very fast
+     * transition so the card follows the cursor.
+     */
+    gsap.set(rowRef.current, {
+      transformPerspective: 700,
+      transformStyle: "preserve-3d",
+    });
+
     gsap.to(lineRef.current, {
       scaleX: 1,
       duration: 0.6,
-      ease: "power3.out",
-    });
-
-    gsap.to(titleRef.current, {
-      x: 12,
-      duration: 0.5,
       ease: "power3.out",
     });
 
@@ -62,10 +65,58 @@ export default function ServiceRow({
       duration: 0.45,
       ease: "power3.out",
     });
+
+    gsap.to(titleRef.current, {
+      x: 8,
+      duration: 0.4,
+      ease: "power3.out",
+    });
+  };
+
+  const handleMove = (
+    event: React.MouseEvent<HTMLElement>
+  ) => {
+    const row = rowRef.current;
+
+    if (!row) {
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    const rect = row.getBoundingClientRect();
+
+    /*
+     * Cursor position normalized to -0.5 → 0.5.
+     */
+    const x =
+      (event.clientX - rect.left) / rect.width - 0.5;
+
+    const y =
+      (event.clientY - rect.top) / rect.height - 0.5;
+
+    /*
+     * Same core math as the reference 3D tilt.
+     */
+    gsap.to(row, {
+      rotateY: x * 10,
+      rotateX: -y * 10,
+      scale: 1.015,
+      duration: 0.12,
+      ease: "none",
+      overwrite: true,
+    });
   };
 
   const handleLeave = () => {
     if (
+      !rowRef.current ||
       !lineRef.current ||
       !titleRef.current ||
       !arrowRef.current
@@ -74,10 +125,23 @@ export default function ServiceRow({
     }
 
     gsap.killTweensOf([
+      rowRef.current,
       lineRef.current,
       titleRef.current,
       arrowRef.current,
     ]);
+
+    /*
+     * Reference-style smooth reset.
+     */
+    gsap.to(rowRef.current, {
+      rotateX: 0,
+      rotateY: 0,
+      scale: 1,
+      duration: 0.6,
+      ease: "power3.out",
+      clearProps: "transform",
+    });
 
     gsap.to(lineRef.current, {
       scaleX: 0,
@@ -102,8 +166,9 @@ export default function ServiceRow({
   return (
     <article
       ref={rowRef}
-      className="group relative border-b border-[var(--mm-border)]"
+      className="group relative border-b border-[var(--mm-border)] transform-gpu"
       onMouseEnter={handleEnter}
+      onMouseMove={handleMove}
       onMouseLeave={handleLeave}
     >
       <div className="grid gap-6 py-7 md:grid-cols-[80px_1fr_1fr_auto] md:items-center md:py-9">
