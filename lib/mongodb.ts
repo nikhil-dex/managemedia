@@ -8,8 +8,11 @@ if (!MONGODB_URI) {
   );
 }
 
+const MONGODB_URI_VALUE: string = MONGODB_URI;
+
+
 declare global {
-  // eslint-disable-next-line no-var
+  
   var mongooseCache:
     | {
         conn: typeof mongoose | null;
@@ -31,7 +34,7 @@ export async function connectDB() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI);
+    cached.promise = mongoose.connect(MONGODB_URI_VALUE);
   }
 
   try {
