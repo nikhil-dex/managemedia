@@ -69,15 +69,22 @@ export async function GET(
           `attachment; filename="ManageMedia-${certificate.certificateNumber}.pdf"`,
       },
     });
-  } catch (error) {
-    console.error(
-      "Certificate PDF error:",
-      error
-    );
+  }   catch (error) {
+    console.error("Certificate PDF error:", error);
 
     return new Response(
-      "Unable to generate certificate",
-      { status: 500 }
+      process.env.NODE_ENV === "development"
+        ? `Certificate PDF error: ${
+            error instanceof Error
+              ? error.message
+              : String(error)
+          }`
+        : "Unable to generate certificate",
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      }
     );
-  }
-}
+  }}
