@@ -142,6 +142,7 @@ export default function CertificatesAdminPage() {
                 }
                 required
               />
+              
 
               <div>
                 <label
@@ -230,6 +231,7 @@ export default function CertificatesAdminPage() {
                 </div>
               )}
 
+
               <button
                 type="submit"
                 disabled={loading}
@@ -239,6 +241,8 @@ export default function CertificatesAdminPage() {
                   ? "Creating Certificate..."
                   : "Generate Certificate"}
               </button>
+              
+              
             </div>
           </form>
         ) : (
@@ -309,6 +313,18 @@ export default function CertificatesAdminPage() {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+    type="button"
+    onClick={() =>
+      window.open(
+        `/api/certificates/${certificate.certificateNumber}/pdf`,
+        "_blank"
+      )
+    }
+    className="h-12 rounded-full bg-white px-6 text-sm font-medium text-black transition hover:bg-white/90"
+  >
+    Download Certificate
+  </button>
               <button
                 type="button"
                 onClick={() =>
@@ -423,6 +439,7 @@ function Detail({
       <p className="mt-2 break-words text-sm text-white/80">
         {value}
       </p>
+  
     </div>
   );
 }
