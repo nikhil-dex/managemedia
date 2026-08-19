@@ -179,6 +179,9 @@ export default function CertificatesAdminPage() {
                     Data Analyst Intern
                   </option>
                   <option>
+                    Business Analyst Intern
+                  </option>
+                  <option>
                     Other
                   </option>
                 </select>
@@ -312,19 +315,22 @@ export default function CertificatesAdminPage() {
               </div>
             </div>
 
+            <button
+  type="button"
+  onClick={() => {
+    const url = `/api/certificates/${certificate.certificateNumber}/pdf`;
+
+    console.log("Downloading certificate:", url);
+
+    window.location.href = url;
+  }}
+  className="h-12 rounded-full bg-white px-6 text-sm font-medium text-black transition hover:bg-white/90"
+>
+  Download Certificate
+</button>
+
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button
-    type="button"
-    onClick={() =>
-      window.open(
-        `/api/certificates/${certificate.certificateNumber}/pdf`,
-        "_blank"
-      )
-    }
-    className="h-12 rounded-full bg-white px-6 text-sm font-medium text-black transition hover:bg-white/90"
-  >
-    Download Certificate
-  </button>
+           
               <button
                 type="button"
                 onClick={() =>
