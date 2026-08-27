@@ -55,6 +55,20 @@ export async function generateCertificatePDF(
   const templateImage =
     await pdfDoc.embedPng(templateBytes);
 
+  const signaturePath = path.join(
+  process.cwd(),
+  "public",
+  "certificates",
+  "signature.png"
+);
+
+const signatureBytes = await imageToBytes(
+  signaturePath
+);
+
+const signatureImage =
+  await pdfDoc.embedPng(signatureBytes);
+
   page.drawImage(templateImage, {
     x: 0,
     y: 0,
@@ -184,6 +198,14 @@ export async function generateCertificatePDF(
       color: white,
     }
   );
+
+
+  page.drawImage(signatureImage, {
+  x: 1240,
+  y: 125,
+  width: 220,
+  height: 90,
+});
 
   /*
    * QR Code
