@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateOfferLetterPDF } from "@/lib/generateOfferLetterPDF";
 import { auth } from "@/auth";
+import { connectDB } from "@/lib/mongodb";
+import Document from "@/models/Document";
 
 function generateOfferNumber() {
   const chars =
@@ -17,7 +19,9 @@ function generateOfferNumber() {
   return `MM-OFFER-${new Date().getFullYear()}-${random}`;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest
+) {
   try {
     /*
      * ==========================================
@@ -90,18 +94,30 @@ export async function POST(request: NextRequest) {
      * ==========================================
      */
 
-    const parsedStartDate = new Date(startDate);
-    const parsedEndDate = new Date(endDate);
-    const parsedIssueDate = new Date(issueDate);
+    const parsedStartDate =
+      new Date(startDate);
+
+    const parsedEndDate =
+      new Date(endDate);
+
+    const parsedIssueDate =
+      new Date(issueDate);
 
     if (
-      Number.isNaN(parsedStartDate.getTime()) ||
-      Number.isNaN(parsedEndDate.getTime()) ||
-      Number.isNaN(parsedIssueDate.getTime())
+      Number.isNaN(
+        parsedStartDate.getTime()
+      ) ||
+      Number.isNaN(
+        parsedEndDate.getTime()
+      ) ||
+      Number.isNaN(
+        parsedIssueDate.getTime()
+      )
     ) {
       return NextResponse.json(
         {
-          error: "One or more dates are invalid.",
+          error:
+            "One or more dates are invalid.",
         },
         {
           status: 400,
@@ -109,7 +125,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (parsedEndDate < parsedStartDate) {
+    if (
+      parsedEndDate <
+      parsedStartDate
+    ) {
       return NextResponse.json(
         {
           error:
@@ -123,12 +142,73 @@ export async function POST(request: NextRequest) {
 
     /*
      * ==========================================
+     * CLEAN INPUT
+     * ==========================================
+     */
+
+    const cleanData = {
+      name: String(name).trim(),
+      internship:
+        String(internship).trim(),
+      duration:
+        String(duration).trim(),
+      startDate:
+        parsedStartDate,
+      endDate:
+        parsedEndDate,
+      issueDate:
+        parsedIssueDate,
+      stipend:
+        String(stipend).trim(),
+      workMode:
+        String(workMode).trim(),
+    };
+
+    /*
+     * ==========================================
      * GENERATE DOCUMENT NUMBER
      * ==========================================
      */
 
     const documentNumber =
       generateOfferNumber();
+
+    /*
+     * ==========================================
+     * CONNECT DATABASE
+     * ==========================================
+     */
+
+    await connectDB();
+
+    /*
+     * ==========================================
+     * SAVE DOCUMENT RECORD
+     * ==========================================
+     */
+
+    await Document.create({
+      documentNumber,
+      documentType: "offer-letter",
+
+      name: cleanData.name,
+      internship:
+        cleanData.internship,
+      duration:
+        cleanData.duration,
+
+      startDate:
+        cleanData.startDate,
+      endDate:
+        cleanData.endDate,
+      issueDate:
+        cleanData.issueDate,
+
+      workMode:
+        cleanData.workMode,
+
+      status: "valid",
+    });
 
     /*
      * ==========================================
@@ -139,14 +219,25 @@ export async function POST(request: NextRequest) {
     const pdfBytes =
       await generateOfferLetterPDF({
         documentNumber,
-        name: String(name).trim(),
-        internship: String(internship).trim(),
-        duration: String(duration).trim(),
-        startDate: parsedStartDate,
-        endDate: parsedEndDate,
-        issueDate: parsedIssueDate,
-        stipend: String(stipend).trim(),
-        workMode: String(workMode).trim(),
+
+        name: cleanData.name,
+        internship:
+          cleanData.internship,
+        duration:
+          cleanData.duration,
+
+        startDate:
+          cleanData.startDate,
+        endDate:
+          cleanData.endDate,
+        issueDate:
+          cleanData.issueDate,
+
+        stipend:
+          cleanData.stipend,
+
+        workMode:
+          cleanData.workMode,
       });
 
     /*
@@ -155,19 +246,28 @@ export async function POST(request: NextRequest) {
      * ==========================================
      */
 
-    const pdfBuffer = Buffer.from(pdfBytes);
+    const pdfBuffer =
+      Buffer.from(pdfBytes);
 
-    return new NextResponse(pdfBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="ManageMedia-Offer-Letter-${documentNumber}.pdf"`,
-        "Content-Length":
-          pdfBuffer.length.toString(),
-        "Cache-Control":
-          "no-store, no-cache, must-revalidate",
-      },
-    });
+    return new NextResponse(
+      pdfBuffer,
+      {
+        status: 200,
+        headers: {
+          "Content-Type":
+            "application/pdf",
+
+          "Content-Disposition":
+            `attachment; filename="ManageMedia-Offer-Letter-${documentNumber}.pdf"`,
+
+          "Content-Length":
+            pdfBuffer.length.toString(),
+
+          "Cache-Control":
+            "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error(
       "Offer letter generation error:",
