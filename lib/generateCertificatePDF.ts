@@ -214,10 +214,10 @@ export async function generateCertificatePDF(
     await pdfDoc.embedPng(qrBytes);
 
   page.drawImage(qrImage, {
-    x: 925,
-    y: 65,
-    width: 150,
-    height: 150,
+    x: 940,
+    y: 80,
+    width: 120,
+    height: 120,
   });
 
   return await pdfDoc.save();
