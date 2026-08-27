@@ -789,34 +789,9 @@ export async function generateOfferLetterPDF(
     }
   );
 
-  /*
-   * ========================================
-   * OFFER NUMBER
-   * ========================================
-   */
 
-  const offerNoText =
-    `Offer No: ${data.documentNumber}`;
 
-  const offerNoWidth =
-    regularFont.widthOfTextAtSize(
-      offerNoText,
-      9
-    );
 
-  page2.drawText(
-    offerNoText,
-    {
-      x:
-        PAGE_WIDTH -
-        x(90) -
-        offerNoWidth,
-      y: y(245),
-      size: 8.5,
-      font: regularFont,
-      color: GRAY,
-    }
-  );
 
   /*
    * ========================================
@@ -961,14 +936,7 @@ export async function generateOfferLetterPDF(
    * ========================================
    */
 
-  page2Text(
-    `Offer No: ${data.documentNumber}`,
-    120,
-    1935,
-    9,
-    regularFont,
-    GRAY
-  );
+
 
   /*
    * ========================================
