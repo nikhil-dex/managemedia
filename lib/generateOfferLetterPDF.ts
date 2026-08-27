@@ -527,7 +527,7 @@ export async function generateOfferLetterPDF(
 
   currentY =
     drawParagraph(
-      `Please confirm your acceptance of this internship offer through the communication channel provided by ManageMedia.`,
+      `Please confirm your acceptance of this internship offer by replying to the email through which this offer letter was provided.`,
       155,
       currentY,
       1220,

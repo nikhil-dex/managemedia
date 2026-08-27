@@ -14,7 +14,10 @@ interface CreatedCertificate {
   status: string;
 }
 
-type DocumentType = "certificate" | "offer-letter";
+type DocumentType =
+  | "certificate"
+  | "offer-letter"
+  | "joining-letter";
 
 interface OfferLetterForm {
   name: string;
@@ -24,6 +27,16 @@ interface OfferLetterForm {
   endDate: string;
   issueDate: string;
   stipend: string;
+  workMode: string;
+}
+
+interface JoiningLetterForm {
+  name: string;
+  internship: string;
+  duration: string;
+  startDate: string;
+  endDate: string;
+  issueDate: string;
   workMode: string;
 }
 
@@ -75,6 +88,17 @@ export default function CertificatesAdminPage() {
       workMode: "Remote",
     });
 
+  const [joiningForm, setJoiningForm] =
+  useState<JoiningLetterForm>({
+    name: "",
+    internship: "Web Development Intern",
+    duration: "1 Month",
+    startDate: "",
+    endDate: "",
+    issueDate: "",
+    workMode: "Remote",
+  });
+
   /*
    * ==========================================
    * COMMON STATE
@@ -119,6 +143,15 @@ export default function CertificatesAdminPage() {
     }));
   }
 
+  function updateJoiningField(
+  field: keyof JoiningLetterForm,
+  value: string
+) {
+  setJoiningForm((current) => ({
+    ...current,
+    [field]: value,
+  }));
+}
   /*
    * ==========================================
    * CERTIFICATE SUBMIT
@@ -265,6 +298,82 @@ export default function CertificatesAdminPage() {
     }
   }
 
+
+  async function handleJoiningLetterSubmit(
+  event: FormEvent<HTMLFormElement>
+) {
+  event.preventDefault();
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const response = await fetch(
+      "/api/documents/joining-letter",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(joiningForm),
+      }
+    );
+
+    const contentType =
+      response.headers.get("content-type") || "";
+
+    if (
+      response.ok &&
+      contentType.includes("application/pdf")
+    ) {
+      const blob = await response.blob();
+
+      const url =
+        window.URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+      link.download =
+        "ManageMedia-Joining-Letter.pdf";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      return;
+    }
+
+    let message =
+      "Unable to generate joining letter.";
+
+    try {
+      const data = await response.json();
+
+      if (data?.error) {
+        message = data.error;
+      }
+    } catch {
+      // Response wasn't JSON.
+    }
+
+    setError(message);
+  } catch (error) {
+    console.error(
+      "Joining letter generation error:",
+      error
+    );
+
+    setError(
+      "Something went wrong while generating the joining letter."
+    );
+  } finally {
+    setLoading(false);
+  }
+}
   /*
    * ==========================================
    * RESET
@@ -294,6 +403,16 @@ export default function CertificatesAdminPage() {
       stipend: "Unpaid",
       workMode: "Remote",
     });
+
+    setJoiningForm({
+  name: "",
+  internship: "Web Development Intern",
+  duration: "1 Month",
+  startDate: "",
+  endDate: "",
+  issueDate: "",
+  workMode: "Remote",
+});
   }
 
   /*
@@ -322,7 +441,7 @@ export default function CertificatesAdminPage() {
   function renderDocumentSelector() {
     return (
       <div className="mb-10 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
-        <div className="grid grid-cols-2 gap-1">
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
           <button
             type="button"
             onClick={() => {
@@ -354,6 +473,22 @@ export default function CertificatesAdminPage() {
           >
             Offer Letter
           </button>
+
+          <button
+  type="button"
+  onClick={() => {
+    setDocumentType("joining-letter");
+    setError("");
+    setCertificate(null);
+  }}
+  className={`h-12 rounded-xl text-sm transition ${
+    documentType === "joining-letter"
+      ? "bg-white text-black"
+      : "text-white/50 hover:bg-white/5 hover:text-white"
+  }`}
+>
+  Joining Letter
+</button>
         </div>
       </div>
     );
@@ -707,6 +842,149 @@ export default function CertificatesAdminPage() {
     );
   }
 
+
+  function renderJoiningLetterForm() {
+  return (
+    <form
+      onSubmit={handleJoiningLetterSubmit}
+      className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-10"
+    >
+      <div className="mb-8">
+        <p className="text-xs uppercase tracking-[0.2em] text-white/35">
+          Internship Document
+        </p>
+
+        <h2 className="mt-2 text-2xl font-medium">
+          Generate Joining Letter
+        </h2>
+
+        <p className="mt-2 text-sm leading-relaxed text-white/40">
+          Generate an official ManageMedia internship
+          joining letter.
+        </p>
+      </div>
+
+      <div className="grid gap-7">
+        <Field
+          label="Intern Name"
+          value={joiningForm.name}
+          placeholder="Enter intern's full name"
+          onChange={(value) =>
+            updateJoiningField("name", value)
+          }
+          required
+        />
+
+        <div>
+          <label
+            htmlFor="joining-internship"
+            className="mb-3 block text-sm text-white/60"
+          >
+            Internship
+          </label>
+
+          <select
+            id="joining-internship"
+            value={joiningForm.internship}
+            onChange={(event) =>
+              updateJoiningField(
+                "internship",
+                event.target.value
+              )
+            }
+            className="h-14 w-full rounded-2xl border border-white/10 bg-black px-5 text-sm text-white outline-none transition focus:border-white/30"
+          >
+            <option>Web Development Intern</option>
+            <option>Digital Marketing Intern</option>
+            <option>Social Media Marketing Intern</option>
+            <option>Graphic Design Intern</option>
+            <option>Data Analyst Intern</option>
+            <option>Business Analyst Intern</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <Field
+          label="Duration"
+          value={joiningForm.duration}
+          placeholder="e.g. 1 Month"
+          onChange={(value) =>
+            updateJoiningField("duration", value)
+          }
+          required
+        />
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          <DateField
+            label="Joining Date"
+            value={joiningForm.startDate}
+            onChange={(value) =>
+              updateJoiningField("startDate", value)
+            }
+            required
+          />
+
+          <DateField
+            label="End Date"
+            value={joiningForm.endDate}
+            onChange={(value) =>
+              updateJoiningField("endDate", value)
+            }
+            required
+          />
+
+          <DateField
+            label="Issue Date"
+            value={joiningForm.issueDate}
+            onChange={(value) =>
+              updateJoiningField("issueDate", value)
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="joining-work-mode"
+            className="mb-3 block text-sm text-white/60"
+          >
+            Work Mode
+          </label>
+
+          <select
+            id="joining-work-mode"
+            value={joiningForm.workMode}
+            onChange={(event) =>
+              updateJoiningField(
+                "workMode",
+                event.target.value
+              )
+            }
+            className="h-14 w-full rounded-2xl border border-white/10 bg-black px-5 text-sm text-white outline-none transition focus:border-white/30"
+          >
+            <option>Remote</option>
+            <option>Hybrid</option>
+            <option>On-site</option>
+          </select>
+        </div>
+
+        {error && (
+          <ErrorMessage message={error} />
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-2 h-14 rounded-full bg-white px-8 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading
+            ? "Generating Joining Letter..."
+            : "Generate Joining Letter"}
+        </button>
+      </div>
+    </form>
+  );
+}
   /*
    * ==========================================
    * CERTIFICATE RESULT
@@ -858,14 +1136,16 @@ export default function CertificatesAdminPage() {
         {renderDocumentSelector()}
 
         {documentType === "certificate" ? (
-          certificate ? (
-            renderCertificateResult()
-          ) : (
-            renderCertificateForm()
-          )
-        ) : (
-          renderOfferLetterForm()
-        )}
+  certificate ? (
+    renderCertificateResult()
+  ) : (
+    renderCertificateForm()
+  )
+) : documentType === "offer-letter" ? (
+  renderOfferLetterForm()
+) : (
+  renderJoiningLetterForm()
+)}
       </div>
     </main>
   );
