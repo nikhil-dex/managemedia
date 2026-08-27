@@ -483,7 +483,7 @@ export async function generateJoiningLetterPDF(
 
   drawText(
     "Joining Details",
-    155,
+    160,
     currentY,
     12.5,
     boldFont,
@@ -609,7 +609,7 @@ export async function generateJoiningLetterPDF(
   drawText(
     "Authorized Signatory",
     1060,
-    1850,
+    1840,
     10,
     boldFont
   );
@@ -617,7 +617,7 @@ export async function generateJoiningLetterPDF(
   drawText(
     "ManageMedia",
     1060,
-    1900,
+    1850,
     10,
     regularFont,
     GRAY
