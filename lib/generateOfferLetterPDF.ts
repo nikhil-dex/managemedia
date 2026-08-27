@@ -378,7 +378,7 @@ export async function generateOfferLetterPDF(
 
   drawText(
     "Internship Opportunity at ManageMedia",
-    270,
+    330,
     540,
     12,
     boldFont,
@@ -413,8 +413,8 @@ export async function generateOfferLetterPDF(
       currentY,
       1220,
       11.5,
-      21,
-      20
+      42,
+      28
     );
 
   /*
@@ -492,7 +492,7 @@ export async function generateOfferLetterPDF(
       11
     );
 
-    currentY += 30;
+    currentY += 38;
   }
 
   /*
@@ -510,8 +510,8 @@ export async function generateOfferLetterPDF(
       currentY,
       1220,
       11.5,
-      21,
-      18
+      42,
+      28
     );
 
   currentY =
@@ -521,8 +521,8 @@ export async function generateOfferLetterPDF(
       currentY,
       1220,
       11.5,
-      21,
-      18
+      42,
+      28
     );
 
   currentY =
@@ -532,8 +532,8 @@ export async function generateOfferLetterPDF(
       currentY,
       1220,
       11.5,
-      21,
-      0
+      42,
+      28
     );
 
   /*
@@ -552,7 +552,7 @@ export async function generateOfferLetterPDF(
 
   drawText(
     data.documentNumber,
-    270,
+    325,
     1770,
     10.5,
     boldFont,
@@ -809,10 +809,10 @@ export async function generateOfferLetterPDF(
     {
       x:
         PAGE_WIDTH -
-        x(100) -
+        x(90) -
         offerNoWidth,
-      y: y(220),
-      size: 9,
+      y: y(245),
+      size: 8.5,
       font: regularFont,
       color: GRAY,
     }
@@ -895,7 +895,7 @@ export async function generateOfferLetterPDF(
       BLUE
     );
 
-    termsY += 24;
+    termsY += 30;
 
     termsY =
       page2Paragraph(
@@ -904,8 +904,8 @@ export async function generateOfferLetterPDF(
         termsY,
         1290,
         10.5,
-        19,
-        24
+        36,
+        28
       );
 
     /*
