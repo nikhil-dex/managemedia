@@ -1,4 +1,9 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  PDFFont
+} from "pdf-lib";
 import fs from "fs/promises";
 import path from "path";
 
@@ -18,12 +23,6 @@ export interface OfferLetterData {
  * ==========================================
  * PAGE / TEMPLATE
  * ==========================================
- *
- * Template size:
- * 1536 × 2048
- *
- * PDF size:
- * A4 portrait
  */
 
 const TEMPLATE_WIDTH = 1536;
@@ -36,7 +35,9 @@ const SCALE_X = PAGE_WIDTH / TEMPLATE_WIDTH;
 const SCALE_Y = PAGE_HEIGHT / TEMPLATE_HEIGHT;
 
 /*
- * Colors
+ * ==========================================
+ * COLORS
+ * ==========================================
  */
 
 const BLACK = rgb(0.035, 0.055, 0.08);
@@ -46,16 +47,14 @@ const GRAY = rgb(0.35, 0.37, 0.40);
 const WHITE = rgb(1, 1, 1);
 
 /*
- * Convert template pixel X → PDF X
+ * ==========================================
+ * COORDINATE HELPERS
+ * ==========================================
  */
 
 function x(value: number) {
   return value * SCALE_X;
 }
-
-/*
- * Convert template pixel Y from top → PDF Y
- */
 
 function y(value: number) {
   return PAGE_HEIGHT - value * SCALE_Y;
@@ -63,7 +62,7 @@ function y(value: number) {
 
 /*
  * ==========================================
- * DATE
+ * DATE FORMAT
  * ==========================================
  */
 
@@ -77,7 +76,7 @@ function formatDate(date: Date | string) {
 
 /*
  * ==========================================
- * FILE
+ * FILE HELPER
  * ==========================================
  */
 
@@ -87,91 +86,152 @@ async function readFile(filePath: string) {
 
 /*
  * ==========================================
- * GENERATOR
+ * TEXT WRAPPING
+ * ==========================================
+ */
+
+function wrapText(
+  text: string,
+  maxWidthTemplate: number,
+  fontSize: number,
+  font: PDFFont
+) {
+  const words = text.trim().split(/\s+/);
+
+  const lines: string[] = [];
+
+  let currentLine = "";
+
+  for (const word of words) {
+    const testLine = currentLine
+      ? `${currentLine} ${word}`
+      : word;
+
+    const width =
+      font.widthOfTextAtSize(
+        testLine,
+        fontSize
+      );
+
+    if (
+      width <=
+      x(maxWidthTemplate)
+    ) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      currentLine = word;
+    }
+  }
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
+}
+
+/*
+ * ==========================================
+ * GENERATE OFFER LETTER
  * ==========================================
  */
 
 export async function generateOfferLetterPDF(
   data: OfferLetterData
 ) {
-  const pdfDoc = await PDFDocument.create();
+  const pdfDoc =
+    await PDFDocument.create();
 
   /*
-   * ==========================================
+   * ========================================
    * FONTS
-   * ==========================================
+   * ========================================
    */
 
-  const regularFont = await pdfDoc.embedFont(
-    StandardFonts.Helvetica
-  );
+  const regularFont =
+    await pdfDoc.embedFont(
+      StandardFonts.Helvetica
+    );
 
-  const boldFont = await pdfDoc.embedFont(
-    StandardFonts.HelveticaBold
-  );
+  const boldFont =
+    await pdfDoc.embedFont(
+      StandardFonts.HelveticaBold
+    );
 
   /*
-   * ==========================================
+   * ========================================
    * SIGNATURE
-   * ==========================================
+   * ========================================
    */
 
-  const signaturePath = path.join(
-    process.cwd(),
-    "public",
-    "certificates",
-    "signature-dark.png"
-  );
+  const signaturePath =
+    path.join(
+      process.cwd(),
+      "public",
+      "certificates",
+      "signature-dark.png"
+    );
 
-  const signatureBytes = await readFile(
-    signaturePath
-  );
+  const signatureBytes =
+    await readFile(signaturePath);
 
   const signatureImage =
-    await pdfDoc.embedPng(signatureBytes);
+    await pdfDoc.embedPng(
+      signatureBytes
+    );
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 1
-   * ==========================================
+   * ========================================
    */
 
-  const page1 = pdfDoc.addPage([
-    PAGE_WIDTH,
-    PAGE_HEIGHT,
-  ]);
+  const page1 =
+    pdfDoc.addPage([
+      PAGE_WIDTH,
+      PAGE_HEIGHT,
+    ]);
 
   /*
-   * ==========================================
-   * TEMPLATE BACKGROUND
-   * ==========================================
+   * ========================================
+   * TEMPLATE
+   * ========================================
    */
 
-  const templatePath = path.join(
-    process.cwd(),
-    "public",
-    "templates",
-    "offer-letter-template.png"
-  );
+  const templatePath =
+    path.join(
+      process.cwd(),
+      "public",
+      "templates",
+      "offer-letter-template.png"
+    );
 
-  const templateBytes = await readFile(
-    templatePath
-  );
+  const templateBytes =
+    await readFile(templatePath);
 
   const templateImage =
-    await pdfDoc.embedPng(templateBytes);
+    await pdfDoc.embedPng(
+      templateBytes
+    );
 
-  page1.drawImage(templateImage, {
-    x: 0,
-    y: 0,
-    width: PAGE_WIDTH,
-    height: PAGE_HEIGHT,
-  });
+  page1.drawImage(
+    templateImage,
+    {
+      x: 0,
+      y: 0,
+      width: PAGE_WIDTH,
+      height: PAGE_HEIGHT,
+    }
+  );
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 1 TEXT HELPERS
-   * ==========================================
+   * ========================================
    */
 
   function drawText(
@@ -206,7 +266,9 @@ export async function generateOfferLetterPDF(
       );
 
     page1.drawText(text, {
-      x: x(templateX) - width,
+      x:
+        x(templateX) -
+        width,
       y: y(templateY),
       size: fontSize,
       font,
@@ -214,93 +276,65 @@ export async function generateOfferLetterPDF(
     });
   }
 
-  function wrapText(
-    text: string,
-    maxWidth: number,
-    fontSize: number,
-    font = regularFont
-  ) {
-    const words = text.split(/\s+/);
-
-    const lines: string[] = [];
-
-    let current = "";
-
-    for (const word of words) {
-      const test = current
-        ? `${current} ${word}`
-        : word;
-
-      const width =
-        font.widthOfTextAtSize(
-          test,
-          fontSize
-        );
-
-      if (width <= x(maxWidth)) {
-        current = test;
-      } else {
-        if (current) {
-          lines.push(current);
-        }
-
-        current = word;
-      }
-    }
-
-    if (current) {
-      lines.push(current);
-    }
-
-    return lines;
-  }
+  /*
+   * ========================================
+   * DRAW PARAGRAPH
+   *
+   * Returns the new Y position.
+   * This is important because wrapped
+   * paragraphs can have multiple lines.
+   * ========================================
+   */
 
   function drawParagraph(
     text: string,
     templateX: number,
     templateY: number,
     maxWidth: number,
-    fontSize = 12,
-    lineHeight = 18,
+    fontSize = 11.5,
+    lineHeight = 21,
+    afterSpacing = 0,
     font = regularFont,
     color = BLACK
   ) {
-    const lines = wrapText(
-      text,
-      maxWidth,
-      fontSize,
-      font
-    );
-
-    lines.forEach((line, index) => {
-      drawText(
-        line,
-        templateX,
-        templateY + index * lineHeight,
+    const lines =
+      wrapText(
+        text,
+        maxWidth,
         fontSize,
-        font,
-        color
+        font
       );
-    });
+
+    lines.forEach(
+      (line, index) => {
+        drawText(
+          line,
+          templateX,
+          templateY +
+            index * lineHeight,
+          fontSize,
+          font,
+          color
+        );
+      }
+    );
 
     return (
       templateY +
-      lines.length * lineHeight
+      lines.length *
+        lineHeight +
+      afterSpacing
     );
   }
 
   /*
-   * ==========================================
+   * ========================================
    * DATE
-   * ==========================================
+   * ========================================
    */
 
-  const issueDate = formatDate(
-    data.issueDate
-  );
-
   drawRightText(
-    issueDate,
+    formatDate(data.issueDate),
     1370,
     285,
     11,
@@ -308,9 +342,9 @@ export async function generateOfferLetterPDF(
   );
 
   /*
-   * ==========================================
+   * ========================================
    * RECIPIENT
-   * ==========================================
+   * ========================================
    */
 
   drawText(
@@ -324,103 +358,125 @@ export async function generateOfferLetterPDF(
   drawText(
     data.name,
     155,
-    465,
-    12,
-    regularFont
+    468,
+    12
   );
 
   /*
-   * ==========================================
+   * ========================================
    * SUBJECT
-   * ==========================================
+   * ========================================
    */
 
   drawText(
     "Subject:",
     155,
-    535,
+    540,
     12,
     boldFont
   );
 
   drawText(
     "Internship Opportunity at ManageMedia",
-    250,
-    535,
+    270,
+    540,
     12,
     boldFont,
     BLUE
   );
 
   /*
-   * ==========================================
+   * ========================================
    * GREETING
-   * ==========================================
+   * ========================================
    */
 
   drawText(
     `Dear ${data.name},`,
     155,
-    610,
+    615,
     12
   );
 
   /*
-   * ==========================================
+   * ========================================
    * INTRODUCTION
-   * ==========================================
+   * ========================================
    */
 
   let currentY = 675;
 
-  currentY = drawParagraph(
-    `We are pleased to offer you the position of ${data.internship} at ManageMedia. We are excited to welcome you to our team and look forward to your contribution.`,
-    155,
-    currentY,
-    1220,
-    11.5,
-    18
-  );
+  currentY =
+    drawParagraph(
+      `We are pleased to offer you the position of ${data.internship} at ManageMedia. We are excited to welcome you to our team and look forward to your contribution.`,
+      155,
+      currentY,
+      1220,
+      11.5,
+      21,
+      20
+    );
 
   /*
-   * ==========================================
-   * INTERNSHIP DETAILS
-   * ==========================================
+   * ========================================
+   * INTERNSHIP DETAILS HEADING
+   * ========================================
    */
 
-  currentY += 32;
+  currentY += 10;
 
   drawText(
     "Internship Details",
     155,
     currentY,
-    12,
+    12.5,
     boldFont,
     BLUE
   );
 
-  currentY += 32;
+  currentY += 34;
 
   /*
-   * Detail rows
+   * ========================================
+   * INTERNSHIP DETAILS
+   * ========================================
    */
 
   const details = [
-    ["Position:", data.internship],
-    ["Duration:", data.duration],
+    [
+      "Position:",
+      data.internship,
+    ],
+    [
+      "Duration:",
+      data.duration,
+    ],
     [
       "Start Date:",
-      formatDate(data.startDate),
+      formatDate(
+        data.startDate
+      ),
     ],
     [
       "End Date:",
-      formatDate(data.endDate),
+      formatDate(
+        data.endDate
+      ),
     ],
-    ["Work Mode:", data.workMode],
-    ["Stipend:", data.stipend],
+    [
+      "Work Mode:",
+      data.workMode,
+    ],
+    [
+      "Stipend:",
+      data.stipend,
+    ],
   ];
 
-  for (const [label, value] of details) {
+  for (
+    const [label, value]
+    of details
+  ) {
     drawText(
       label,
       175,
@@ -436,52 +492,54 @@ export async function generateOfferLetterPDF(
       11
     );
 
-    currentY += 27;
+    currentY += 30;
   }
 
   /*
-   * ==========================================
-   * RESPONSIBILITIES
-   * ==========================================
+   * ========================================
+   * MAIN BODY
+   * ========================================
    */
 
-  currentY += 22;
+  currentY += 20;
 
-  currentY = drawParagraph(
-    `During your internship, you will work on assigned projects and responsibilities related to your role. You will have the opportunity to gain practical experience, collaborate with the team, and contribute to ManageMedia's digital initiatives.`,
-    155,
-    currentY,
-    1220,
-    11.5,
-    18
-  );
+  currentY =
+    drawParagraph(
+      `During your internship, you will work on assigned projects and responsibilities related to your role. You will have the opportunity to gain practical experience, collaborate with the team, and contribute to ManageMedia's digital initiatives.`,
+      155,
+      currentY,
+      1220,
+      11.5,
+      21,
+      18
+    );
 
-  currentY += 22;
+  currentY =
+    drawParagraph(
+      `We look forward to your contribution and wish you a productive and valuable learning experience with ManageMedia.`,
+      155,
+      currentY,
+      1220,
+      11.5,
+      21,
+      18
+    );
 
-  currentY = drawParagraph(
-    `We look forward to your contribution and wish you a productive and valuable learning experience with ManageMedia.`,
-    155,
-    currentY,
-    1220,
-    11.5,
-    18
-  );
-
-  currentY += 22;
-
-  drawParagraph(
-    `Please confirm your acceptance of this internship offer through the communication channel provided by ManageMedia.`,
-    155,
-    currentY,
-    1220,
-    11.5,
-    18
-  );
+  currentY =
+    drawParagraph(
+      `Please confirm your acceptance of this internship offer through the communication channel provided by ManageMedia.`,
+      155,
+      currentY,
+      1220,
+      11.5,
+      21,
+      0
+    );
 
   /*
-   * ==========================================
+   * ========================================
    * OFFER NUMBER
-   * ==========================================
+   * ========================================
    */
 
   drawText(
@@ -494,7 +552,7 @@ export async function generateOfferLetterPDF(
 
   drawText(
     data.documentNumber,
-    245,
+    270,
     1770,
     10.5,
     boldFont,
@@ -502,58 +560,62 @@ export async function generateOfferLetterPDF(
   );
 
   /*
-   * ==========================================
+   * ========================================
    * SIGNATURE
-   * ==========================================
+   * ========================================
    */
 
   drawText(
     "With regards,",
-    1110,
-    1660,
+    1080,
+    1655,
     10.5,
     boldFont
   );
 
-  page1.drawImage(signatureImage, {
-    x: x(1080),
-    y: y(1790),
-    width: x(190),
-    height: x(90),
-  });
+  page1.drawImage(
+    signatureImage,
+    {
+      x: x(1060),
+      y: y(1785),
+      width: x(200),
+      height: x(90),
+    }
+  );
 
   drawText(
     "Authorized Signatory",
-    1080,
-    1880,
+    1060,
+    1875,
     10,
     boldFont
   );
 
   drawText(
     "ManageMedia",
-    1080,
-    1905,
+    1060,
+    1900,
     10,
     regularFont,
     GRAY
   );
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 2
-   * ==========================================
+   * ========================================
    */
 
-  const page2 = pdfDoc.addPage([
-    PAGE_WIDTH,
-    PAGE_HEIGHT,
-  ]);
+  const page2 =
+    pdfDoc.addPage([
+      PAGE_WIDTH,
+      PAGE_HEIGHT,
+    ]);
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 2 BACKGROUND
-   * ==========================================
+   * ========================================
    */
 
   page2.drawRectangle({
@@ -565,12 +627,16 @@ export async function generateOfferLetterPDF(
   });
 
   /*
-   * Top blue decoration
+   * ========================================
+   * TOP BLUE BAR
+   * ========================================
    */
 
   page2.drawRectangle({
     x: 0,
-    y: PAGE_HEIGHT - x(35),
+    y:
+      PAGE_HEIGHT -
+      x(35),
     width: PAGE_WIDTH,
     height: x(35),
     color: BLUE,
@@ -578,14 +644,18 @@ export async function generateOfferLetterPDF(
 
   page2.drawRectangle({
     x: 0,
-    y: PAGE_HEIGHT - x(60),
+    y:
+      PAGE_HEIGHT -
+      x(60),
     width: x(210),
     height: x(14),
     color: LIGHT_BLUE,
   });
 
   /*
-   * Header line
+   * ========================================
+   * HEADER LINE
+   * ========================================
    */
 
   page2.drawLine({
@@ -602,9 +672,9 @@ export async function generateOfferLetterPDF(
   });
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 2 HELPERS
-   * ==========================================
+   * ========================================
    */
 
   function page2Text(
@@ -629,65 +699,46 @@ export async function generateOfferLetterPDF(
     templateX: number,
     templateY: number,
     maxWidth: number,
-    fontSize = 11,
-    lineHeight = 17,
+    fontSize = 10.5,
+    lineHeight = 19,
+    afterSpacing = 0,
     font = regularFont,
     color = BLACK
   ) {
-    const words = text.split(/\s+/);
-
-    const lines: string[] = [];
-
-    let current = "";
-
-    for (const word of words) {
-      const test = current
-        ? `${current} ${word}`
-        : word;
-
-      const width =
-        font.widthOfTextAtSize(
-          test,
-          fontSize
-        );
-
-      if (width <= x(maxWidth)) {
-        current = test;
-      } else {
-        if (current) {
-          lines.push(current);
-        }
-
-        current = word;
-      }
-    }
-
-    if (current) {
-      lines.push(current);
-    }
-
-    lines.forEach((line, index) => {
-      page2Text(
-        line,
-        templateX,
-        templateY +
-          index * lineHeight,
+    const lines =
+      wrapText(
+        text,
+        maxWidth,
         fontSize,
-        font,
-        color
+        font
       );
-    });
+
+    lines.forEach(
+      (line, index) => {
+        page2Text(
+          line,
+          templateX,
+          templateY +
+            index * lineHeight,
+          fontSize,
+          font,
+          color
+        );
+      }
+    );
 
     return (
       templateY +
-      lines.length * lineHeight
+      lines.length *
+        lineHeight +
+      afterSpacing
     );
   }
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 2 HEADER
-   * ==========================================
+   * ========================================
    */
 
   page2Text(
@@ -702,176 +753,227 @@ export async function generateOfferLetterPDF(
   page2Text(
     "Internship Documentation",
     155,
-    128,
+    130,
     9,
     regularFont,
     GRAY
   );
 
   /*
-   * ==========================================
+   * ========================================
    * TITLE
-   * ==========================================
+   * ========================================
    */
 
   const title =
     "TERMS & CONDITIONS";
 
+  const titleFontSize = 18;
+
   const titleWidth =
     boldFont.widthOfTextAtSize(
       title,
-      18
+      titleFontSize
     );
 
-  page2.drawText(title, {
-    x:
-      PAGE_WIDTH / 2 -
-      titleWidth / 2,
-    y: y(220),
-    size: 18,
-    font: boldFont,
-    color: BLUE,
-  });
-
-  /*
-   * ==========================================
-   * INTRO
-   * ==========================================
-   */
-
-  let termsY = 275;
-
-  page2Text(
-    `Offer No: ${data.documentNumber}`,
-    1200,
-    220,
-    9,
-    regularFont,
-    GRAY
+  page2.drawText(
+    title,
+    {
+      x:
+        PAGE_WIDTH / 2 -
+        titleWidth / 2,
+      y: y(220),
+      size: titleFontSize,
+      font: boldFont,
+      color: BLUE,
+    }
   );
 
   /*
-   * ==========================================
-   * TERMS
-   * ==========================================
+   * ========================================
+   * OFFER NUMBER
+   * ========================================
    */
+
+  const offerNoText =
+    `Offer No: ${data.documentNumber}`;
+
+  const offerNoWidth =
+    regularFont.widthOfTextAtSize(
+      offerNoText,
+      9
+    );
+
+  page2.drawText(
+    offerNoText,
+    {
+      x:
+        PAGE_WIDTH -
+        x(100) -
+        offerNoWidth,
+      y: y(220),
+      size: 9,
+      font: regularFont,
+      color: GRAY,
+    }
+  );
+
+  /*
+   * ========================================
+   * TERMS
+   * ========================================
+   */
+
+  let termsY = 290;
 
   const terms = [
     {
-      title: "1. Professional Conduct",
-      text: "The intern is expected to maintain professional behavior, respectful communication, and appropriate conduct throughout the internship.",
+      title:
+        "1. Professional Conduct",
+      text:
+        "The intern is expected to maintain professional behavior, respectful communication, and appropriate conduct throughout the internship.",
     },
     {
-      title: "2. Responsibilities",
-      text: "The intern agrees to complete assigned tasks and responsibilities within the expected timelines and follow reasonable instructions provided by ManageMedia.",
+      title:
+        "2. Responsibilities",
+      text:
+        "The intern agrees to complete assigned tasks and responsibilities within the expected timelines and follow reasonable instructions provided by ManageMedia.",
     },
     {
-      title: "3. Confidentiality",
-      text: "The intern must maintain the confidentiality of company, client, project, technical, business, and other non-public information accessed during the internship.",
+      title:
+        "3. Confidentiality",
+      text:
+        "The intern must maintain the confidentiality of company, client, project, technical, business, and other non-public information accessed during the internship.",
     },
     {
-      title: "4. Intellectual Property",
-      text: "Any work, materials, designs, code, documentation, or other deliverables created as part of assigned company work shall be subject to ManageMedia's applicable ownership and usage policies.",
+      title:
+        "4. Intellectual Property",
+      text:
+        "Any work, materials, designs, code, documentation, or other deliverables created as part of assigned company work shall be subject to ManageMedia's applicable ownership and usage policies.",
     },
     {
-      title: "5. Attendance & Communication",
-      text: "The intern is expected to maintain reasonable availability and communicate promptly regarding delays, absences, or circumstances affecting assigned responsibilities.",
+      title:
+        "5. Attendance & Communication",
+      text:
+        "The intern is expected to maintain reasonable availability and communicate promptly regarding delays, absences, or circumstances affecting assigned responsibilities.",
     },
     {
-      title: "6. Termination",
-      text: "ManageMedia or the intern may end the internship subject to the terms communicated by the organization.",
+      title:
+        "6. Termination",
+      text:
+        "ManageMedia or the intern may end the internship subject to the terms communicated by the organization.",
     },
     {
-      title: "7. Completion Certificate",
-      text: "A completion certificate may be issued upon successful completion of the internship and fulfillment of the applicable completion requirements.",
+      title:
+        "7. Completion Certificate",
+      text:
+        "A completion certificate may be issued upon successful completion of the internship and fulfillment of the applicable completion requirements.",
     },
     {
-      title: "8. Acceptance",
-      text: "By accepting this offer, the intern acknowledges that they have read and understood the internship terms and agree to fulfill the responsibilities associated with the role.",
+      title:
+        "8. Acceptance",
+      text:
+        "By accepting this offer, the intern acknowledges that they have read and understood the internship terms and agree to fulfill the responsibilities associated with the role.",
     },
   ];
 
-  for (const term of terms) {
+  /*
+   * ========================================
+   * DRAW TERMS
+   * ========================================
+   */
+
+  for (
+    const term of terms
+  ) {
     page2Text(
       term.title,
       120,
       termsY,
-      11,
+      11.5,
       boldFont,
       BLUE
     );
 
-    termsY += 21;
-
-    termsY = page2Paragraph(
-      term.text,
-      120,
-      termsY,
-      1290,
-      10.5,
-      16
-    );
-
     termsY += 24;
+
+    termsY =
+      page2Paragraph(
+        term.text,
+        120,
+        termsY,
+        1290,
+        10.5,
+        19,
+        24
+      );
+
+    /*
+     * Extra space between terms
+     */
+    termsY += 4;
   }
 
   /*
-   * ==========================================
-   * SIGNATURE
-   * ==========================================
+   * ========================================
+   * PAGE 2 SIGNATURE
+   * ========================================
    */
 
   page2Text(
     "With regards,",
-    1050,
+    1060,
     1740,
     10.5,
     boldFont
   );
 
-  page2.drawImage(signatureImage, {
-    x: x(1020),
-    y: y(1870),
-    width: x(190),
-    height: x(85),
-  });
+  page2.drawImage(
+    signatureImage,
+    {
+      x: x(1035),
+      y: y(1865),
+      width: x(200),
+      height: x(88),
+    }
+  );
 
   page2Text(
     "Authorized Signatory",
-    1020,
-    1940,
+    1035,
+    1935,
     10,
     boldFont
   );
 
   page2Text(
     "ManageMedia",
-    1020,
-    1965,
+    1035,
+    1960,
     10,
     regularFont,
     GRAY
   );
 
   /*
-   * ==========================================
+   * ========================================
    * PAGE 2 OFFER NUMBER
-   * ==========================================
+   * ========================================
    */
 
   page2Text(
     `Offer No: ${data.documentNumber}`,
     120,
-    1940,
+    1935,
     9,
     regularFont,
     GRAY
   );
 
   /*
-   * ==========================================
-   * FOOTER
-   * ==========================================
+   * ========================================
+   * FOOTER LINE
+   * ========================================
    */
 
   page2.drawLine({
@@ -886,6 +988,12 @@ export async function generateOfferLetterPDF(
     thickness: 0.8,
     color: LIGHT_BLUE,
   });
+
+  /*
+   * ========================================
+   * FOOTER
+   * ========================================
+   */
 
   page2Text(
     "+91-9315226146",
@@ -915,9 +1023,9 @@ export async function generateOfferLetterPDF(
   );
 
   /*
-   * ==========================================
+   * ========================================
    * RETURN PDF
-   * ==========================================
+   * ========================================
    */
 
   return await pdfDoc.save();
