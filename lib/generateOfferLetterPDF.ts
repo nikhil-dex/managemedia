@@ -565,40 +565,9 @@ export async function generateOfferLetterPDF(
    * ========================================
    */
 
-  drawText(
-    "With regards,",
-    1080,
-    1655,
-    10.5,
-    boldFont
-  );
+ 
 
-  page1.drawImage(
-    signatureImage,
-    {
-      x: x(1060),
-      y: y(1785),
-      width: x(200),
-      height: x(90),
-    }
-  );
 
-  drawText(
-    "Authorized Signatory",
-    1060,
-    1875,
-    10,
-    boldFont
-  );
-
-  drawText(
-    "ManageMedia",
-    1060,
-    1900,
-    10,
-    regularFont,
-    GRAY
-  );
 
   /*
    * ========================================
