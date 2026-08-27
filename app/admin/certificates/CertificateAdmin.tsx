@@ -2,6 +2,7 @@
 
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface CreatedCertificate {
   certificateNumber: string;
@@ -15,6 +16,7 @@ interface CreatedCertificate {
 }
 
 export default function CertificatesAdminPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     internship: "Web Development Intern",
@@ -322,7 +324,7 @@ export default function CertificatesAdminPage() {
 
     console.log("Downloading certificate:", url);
 
-    window.location.href = url;
+    router.push(url);
   }}
   className="h-12 rounded-full bg-white px-6 text-sm font-medium text-black transition hover:bg-white/90"
 >

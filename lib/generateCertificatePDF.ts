@@ -114,7 +114,7 @@ export async function generateCertificatePDF(
    */
   drawCenteredText(
     certificate.name,
-    850,
+    680,
     78,
     italicFont,
     gold
@@ -125,7 +125,7 @@ export async function generateCertificatePDF(
    */
   drawCenteredText(
     certificate.internship.toUpperCase(),
-    715,
+    505,
     27,
     regularFont,
     white
@@ -136,7 +136,7 @@ export async function generateCertificatePDF(
    */
   drawCenteredText(
     `Duration: ${certificate.duration}`,
-    650,
+    450,
     29,
     regularFont,
     white
@@ -149,7 +149,7 @@ export async function generateCertificatePDF(
     `${formatDate(
       certificate.startDate
     )} – ${formatDate(certificate.endDate)}`,
-    610,
+    410,
     28,
     regularFont,
     white
