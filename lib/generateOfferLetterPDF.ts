@@ -336,7 +336,7 @@ export async function generateOfferLetterPDF(
   drawRightText(
     formatDate(data.issueDate),
     1370,
-    285,
+    290,
     11,
     boldFont
   );
