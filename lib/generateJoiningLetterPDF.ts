@@ -18,35 +18,16 @@ export interface JoiningLetterData {
   workMode: string;
 }
 
-/*
- * ==========================================
- * TEMPLATE / PAGE SIZE
- * ==========================================
- */
-
 const TEMPLATE_WIDTH = 1536;
 const TEMPLATE_HEIGHT = 2048;
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 
-const SCALE_X =
-  PAGE_WIDTH / TEMPLATE_WIDTH;
+const SCALE_X = PAGE_WIDTH / TEMPLATE_WIDTH;
+const SCALE_Y = PAGE_HEIGHT / TEMPLATE_HEIGHT;
 
-const SCALE_Y =
-  PAGE_HEIGHT / TEMPLATE_HEIGHT;
-
-/*
- * ==========================================
- * COLORS
- * ==========================================
- */
-
-const BLACK = rgb(
-  0.035,
-  0.055,
-  0.08
-);
+const BLACK = rgb(0.035, 0.055, 0.08);
 
 const BLUE = rgb(
   0.02,
@@ -60,32 +41,17 @@ const GRAY = rgb(
   0.40
 );
 
-/*
- * ==========================================
- * COORDINATE HELPERS
- * ==========================================
- */
-
-function x(value: number) {
+function x(value: number): number {
   return value * SCALE_X;
 }
 
-function y(value: number) {
-  return (
-    PAGE_HEIGHT -
-    value * SCALE_Y
-  );
+function y(value: number): number {
+  return PAGE_HEIGHT - value * SCALE_Y;
 }
-
-/*
- * ==========================================
- * DATE FORMAT
- * ==========================================
- */
 
 function formatDate(
   date: Date | string
-) {
+): string {
   return new Intl.DateTimeFormat(
     "en-IN",
     {
@@ -96,42 +62,22 @@ function formatDate(
   ).format(new Date(date));
 }
 
-/*
- * ==========================================
- * FILE HELPER
- * ==========================================
- */
-
-async function readFile(
-  filePath: string
-) {
-  return fs.readFile(filePath);
-}
-
-/*
- * ==========================================
- * TEXT WRAPPING
- * ==========================================
- */
-
 function wrapText(
   text: string,
   maxWidthTemplate: number,
   fontSize: number,
   font: PDFFont
-) {
-  const words =
-    text.trim().split(/\s+/);
+): string[] {
+  const words = text.trim().split(/\s+/);
 
   const lines: string[] = [];
 
   let currentLine = "";
 
   for (const word of words) {
-    const testLine =
-      currentLine
-        ? `${currentLine} ${word}`
-        : word;
+    const testLine = currentLine
+      ? `${currentLine} ${word}`
+      : word;
 
     const width =
       font.widthOfTextAtSize(
@@ -160,22 +106,16 @@ function wrapText(
   return lines;
 }
 
-/*
- * ==========================================
- * GENERATE JOINING LETTER
- * ==========================================
- */
-
 export async function generateJoiningLetterPDF(
   data: JoiningLetterData
-) {
+): Promise<Uint8Array> {
   const pdfDoc =
     await PDFDocument.create();
 
   /*
-   * ========================================
+   * ==========================================
    * FONTS
-   * ========================================
+   * ==========================================
    */
 
   const regularFont =
@@ -189,9 +129,9 @@ export async function generateJoiningLetterPDF(
     );
 
   /*
-   * ========================================
+   * ==========================================
    * TEMPLATE
-   * ========================================
+   * ==========================================
    */
 
   const templatePath =
@@ -203,7 +143,9 @@ export async function generateJoiningLetterPDF(
     );
 
   const templateBytes =
-    await readFile(templatePath);
+    await fs.readFile(
+      templatePath
+    );
 
   const templateImage =
     await pdfDoc.embedPng(
@@ -211,9 +153,9 @@ export async function generateJoiningLetterPDF(
     );
 
   /*
-   * ========================================
+   * ==========================================
    * SIGNATURE
-   * ========================================
+   * ==========================================
    */
 
   const signaturePath =
@@ -225,7 +167,9 @@ export async function generateJoiningLetterPDF(
     );
 
   const signatureBytes =
-    await readFile(signaturePath);
+    await fs.readFile(
+      signaturePath
+    );
 
   const signatureImage =
     await pdfDoc.embedPng(
@@ -233,9 +177,9 @@ export async function generateJoiningLetterPDF(
     );
 
   /*
-   * ========================================
+   * ==========================================
    * PAGE
-   * ========================================
+   * ==========================================
    */
 
   const page =
@@ -245,9 +189,9 @@ export async function generateJoiningLetterPDF(
     ]);
 
   /*
-   * ========================================
-   * BACKGROUND TEMPLATE
-   * ========================================
+   * ==========================================
+   * BACKGROUND
+   * ==========================================
    */
 
   page.drawImage(
@@ -261,9 +205,9 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
-   * TEXT HELPER
-   * ========================================
+   * ==========================================
+   * TEXT HELPERS
+   * ==========================================
    */
 
   function drawText(
@@ -273,7 +217,7 @@ export async function generateJoiningLetterPDF(
     fontSize = 11.5,
     font = regularFont,
     color = BLACK
-  ) {
+  ): void {
     page.drawText(text, {
       x: x(templateX),
       y: y(templateY),
@@ -283,12 +227,6 @@ export async function generateJoiningLetterPDF(
     });
   }
 
-  /*
-   * ========================================
-   * RIGHT ALIGNED TEXT
-   * ========================================
-   */
-
   function drawRightText(
     text: string,
     templateX: number,
@@ -296,7 +234,7 @@ export async function generateJoiningLetterPDF(
     fontSize = 11,
     font = regularFont,
     color = BLACK
-  ) {
+  ): void {
     const width =
       font.widthOfTextAtSize(
         text,
@@ -314,12 +252,6 @@ export async function generateJoiningLetterPDF(
     });
   }
 
-  /*
-   * ========================================
-   * PARAGRAPH
-   * ========================================
-   */
-
   function drawParagraph(
     text: string,
     templateX: number,
@@ -330,7 +262,7 @@ export async function generateJoiningLetterPDF(
     afterSpacing = 0,
     font = regularFont,
     color = BLACK
-  ) {
+  ): number {
     const lines =
       wrapText(
         text,
@@ -362,9 +294,9 @@ export async function generateJoiningLetterPDF(
   }
 
   /*
-   * ========================================
+   * ==========================================
    * ISSUE DATE
-   * ========================================
+   * ==========================================
    */
 
   drawRightText(
@@ -378,9 +310,9 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
+   * ==========================================
    * RECIPIENT
-   * ========================================
+   * ==========================================
    */
 
   drawText(
@@ -399,9 +331,9 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
+   * ==========================================
    * SUBJECT
-   * ========================================
+   * ==========================================
    */
 
   drawText(
@@ -422,9 +354,9 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
+   * ==========================================
    * GREETING
-   * ========================================
+   * ==========================================
    */
 
   drawText(
@@ -435,9 +367,9 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
-   * INTRODUCTION
-   * ========================================
+   * ==========================================
+   * BODY
+   * ==========================================
    */
 
   let currentY = 680;
@@ -476,14 +408,14 @@ export async function generateJoiningLetterPDF(
     );
 
   /*
-   * ========================================
+   * ==========================================
    * JOINING DETAILS
-   * ========================================
+   * ==========================================
    */
 
   drawText(
     "Joining Details",
-    165,
+    155,
     currentY,
     12.5,
     boldFont,
@@ -492,13 +424,15 @@ export async function generateJoiningLetterPDF(
 
   currentY += 38;
 
-  const details = [
+  const details: Array<
+    [string, string]
+  > = [
     [
       "Position:",
       data.internship,
     ],
     [
-      "Joining Date: ",
+      "Joining Date:",
       formatDate(
         data.startDate
       ),
@@ -531,9 +465,13 @@ export async function generateJoiningLetterPDF(
       boldFont
     );
 
+    /*
+     * Slightly increased X position
+     * to prevent label/value touching.
+     */
     drawText(
       value,
-      350,
+      390,
       currentY,
       11
     );
@@ -542,9 +480,9 @@ export async function generateJoiningLetterPDF(
   }
 
   /*
-   * ========================================
+   * ==========================================
    * CLOSING
-   * ========================================
+   * ==========================================
    */
 
   currentY += 22;
@@ -560,13 +498,13 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
+   * ==========================================
    * JOINING NUMBER
-   * ========================================
+   * ==========================================
    */
 
   drawText(
-    "Joining No: ",
+    "Joining No:",
     155,
     1770,
     10.5,
@@ -583,9 +521,9 @@ export async function generateJoiningLetterPDF(
   );
 
   /*
-   * ========================================
+   * ==========================================
    * SIGNATURE
-   * ========================================
+   * ==========================================
    */
 
   drawText(
@@ -609,7 +547,7 @@ export async function generateJoiningLetterPDF(
   drawText(
     "Authorized Signatory",
     1060,
-    1830,
+    1875,
     10,
     boldFont
   );
@@ -617,17 +555,17 @@ export async function generateJoiningLetterPDF(
   drawText(
     "ManageMedia",
     1060,
-    1850,
+    1900,
     10,
     regularFont,
     GRAY
   );
 
   /*
-   * ========================================
+   * ==========================================
    * RETURN PDF
-   * ========================================
+   * ==========================================
    */
 
-  return await pdfDoc.save();
+  return pdfDoc.save();
 }
