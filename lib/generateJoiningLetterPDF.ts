@@ -498,7 +498,7 @@ export async function generateJoiningLetterPDF(
       data.internship,
     ],
     [
-      "Joining Date:",
+      "Joining Date: ",
       formatDate(
         data.startDate
       ),
@@ -566,7 +566,7 @@ export async function generateJoiningLetterPDF(
    */
 
   drawText(
-    "Joining No:",
+    "Joining No: ",
     155,
     1770,
     10.5,
@@ -575,7 +575,7 @@ export async function generateJoiningLetterPDF(
 
   drawText(
     data.documentNumber,
-    285,
+    310,
     1770,
     10.5,
     boldFont,
@@ -609,7 +609,7 @@ export async function generateJoiningLetterPDF(
   drawText(
     "Authorized Signatory",
     1060,
-    1875,
+    1850,
     10,
     boldFont
   );
