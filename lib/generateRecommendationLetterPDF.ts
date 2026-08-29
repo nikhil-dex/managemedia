@@ -372,7 +372,7 @@ const signatureImage =
    */
 
   const closing =
-    "We wish them continued success in their future endeavors.";
+    `We wish ${data.name} continued success in their future endeavors.`;
 
   y = drawWrappedText(
     page,
