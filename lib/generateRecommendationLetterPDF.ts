@@ -3,6 +3,8 @@ import {
   StandardFonts,
   rgb,
 } from "pdf-lib";
+import fs from "fs/promises";
+import path from "path";
 
 interface RecommendationLetterData {
   documentNumber: string;
@@ -105,6 +107,27 @@ export async function generateRecommendationLetterPDF(
     await pdfDoc.embedFont(
       StandardFonts.HelveticaBold
     );
+
+    /*
+ * ==========================================
+ * SIGNATURE
+ * ==========================================
+ */
+
+const signaturePath = path.join(
+  process.cwd(),
+  "public",
+  "certificates",
+  "signature-dark.png"
+);
+
+const signatureBytes =
+  await fs.readFile(signaturePath);
+
+const signatureImage =
+  await pdfDoc.embedPng(
+    signatureBytes
+  );
 
   /*
    * ==========================================
@@ -370,43 +393,60 @@ export async function generateRecommendationLetterPDF(
 
   y -= 48;
 
-  page.drawText(
-    "Sincerely,",
-    {
-      x: margin,
-      y,
-      size: 10,
-      font: regularFont,
-      color: black,
-    }
-  );
+page.drawText(
+  "Sincerely,",
+  {
+    x: margin,
+    y,
+    size: 10,
+    font: regularFont,
+    color: black,
+  }
+);
 
-  y -= 62;
+/*
+ * ==========================================
+ * SIGNATURE IMAGE
+ * ==========================================
+ */
 
-  page.drawText(
-    "Authorized Signatory",
-    {
-      x: margin,
-      y,
-      size: 10,
-      font: boldFont,
-      color: black,
-    }
-  );
+y -= 18;
 
-  y -= 17;
+page.drawImage(
+  signatureImage,
+  {
+    x: margin,
+    y: y - 20,
+    width: 120,
+    height: 54,
+  }
+);
 
-  page.drawText(
-    "ManageMedia",
-    {
-      x: margin,
-      y,
-      size: 9,
-      font: regularFont,
-      color: muted,
-    }
-  );
+y -= 75;
 
+page.drawText(
+  "Authorized Signatory",
+  {
+    x: margin,
+    y,
+    size: 10,
+    font: boldFont,
+    color: black,
+  }
+);
+
+y -= 17;
+
+page.drawText(
+  "ManageMedia",
+  {
+    x: margin,
+    y,
+    size: 9,
+    font: regularFont,
+    color: muted,
+  }
+);
   /*
    * ==========================================
    * FOOTER
