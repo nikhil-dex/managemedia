@@ -704,6 +704,12 @@ setLorForm({
               <option>
                 Business Analyst Intern
               </option>
+              <option>
+                UI/UX Intern
+              </option>
+              <option>
+                Content Writing Intern
+              </option>
 
               <option>
                 Other
@@ -862,6 +868,12 @@ setLorForm({
 
               <option>
                 Business Analyst Intern
+              </option>
+              <option>
+                UI/UX Intern
+              </option>
+              <option>
+                Content Writing Intern
               </option>
 
               <option>
@@ -1045,6 +1057,8 @@ setLorForm({
             <option>Graphic Design Intern</option>
             <option>Data Analyst Intern</option>
             <option>Business Analyst Intern</option>
+            <option>UI/UX Intern</option>
+            <option>Content Writing Intern</option>
             <option>Other</option>
           </select>
         </div>
@@ -1204,6 +1218,12 @@ function renderLorForm() {
               Data Analyst Intern
             </option>
 
+            <option>
+              UI/UX Intern
+            </option>
+            <option>
+              Content Writing Intern
+            </option>
             <option>
               Business Analyst Intern
             </option>
