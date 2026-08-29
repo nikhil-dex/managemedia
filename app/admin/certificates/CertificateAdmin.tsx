@@ -17,7 +17,8 @@ interface CreatedCertificate {
 type DocumentType =
   | "certificate"
   | "offer-letter"
-  | "joining-letter";
+  | "joining-letter"
+  | "lor";
 
 interface OfferLetterForm {
   name: string;
@@ -38,6 +39,17 @@ interface JoiningLetterForm {
   endDate: string;
   issueDate: string;
   workMode: string;
+}
+
+interface RecommendationLetterForm {
+  name: string;
+  internship: string;
+  duration: string;
+  startDate: string;
+  endDate: string;
+  issueDate: string;
+  workMode: string;
+  performance: string;
 }
 
 export default function CertificatesAdminPage() {
@@ -99,6 +111,18 @@ export default function CertificatesAdminPage() {
     workMode: "Remote",
   });
 
+  const [lorForm, setLorForm] =
+  useState<RecommendationLetterForm>({
+    name: "",
+    internship: "Web Development Intern",
+    duration: "1 Month",
+    startDate: "",
+    endDate: "",
+    issueDate: "",
+    workMode: "Remote",
+    performance: "",
+  });
+
   /*
    * ==========================================
    * COMMON STATE
@@ -148,6 +172,16 @@ export default function CertificatesAdminPage() {
   value: string
 ) {
   setJoiningForm((current) => ({
+    ...current,
+    [field]: value,
+  }));
+}
+
+function updateLorField(
+  field: keyof RecommendationLetterForm,
+  value: string
+) {
+  setLorForm((current) => ({
     ...current,
     [field]: value,
   }));
@@ -374,6 +408,90 @@ export default function CertificatesAdminPage() {
     setLoading(false);
   }
 }
+
+async function handleLorSubmit(
+  event: FormEvent<HTMLFormElement>
+) {
+  event.preventDefault();
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const response = await fetch(
+      "/api/documents/lor",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify(lorForm),
+      }
+    );
+
+    const contentType =
+      response.headers.get(
+        "content-type"
+      ) || "";
+
+    if (
+      response.ok &&
+      contentType.includes("application/pdf")
+    ) {
+      const blob =
+        await response.blob();
+
+      const url =
+        window.URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "ManageMedia-LOR.pdf";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      return;
+    }
+
+    let message =
+      "Unable to generate letter of recommendation.";
+
+    try {
+      const data =
+        await response.json();
+
+      if (data?.error) {
+        message = data.error;
+      }
+    } catch {
+      // Response wasn't JSON.
+    }
+
+    setError(message);
+  } catch (error) {
+    console.error(
+      "LOR generation error:",
+      error
+    );
+
+    setError(
+      "Something went wrong while generating the letter of recommendation."
+    );
+  } finally {
+    setLoading(false);
+  }
+}
   /*
    * ==========================================
    * RESET
@@ -413,6 +531,17 @@ export default function CertificatesAdminPage() {
   issueDate: "",
   workMode: "Remote",
 });
+
+setLorForm({
+  name: "",
+  internship: "Web Development Intern",
+  duration: "1 Month",
+  startDate: "",
+  endDate: "",
+  issueDate: "",
+  workMode: "Remote",
+  performance: "",
+});
   }
 
   /*
@@ -441,7 +570,7 @@ export default function CertificatesAdminPage() {
   function renderDocumentSelector() {
     return (
       <div className="mb-10 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
-        <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-4">
           <button
             type="button"
             onClick={() => {
@@ -488,6 +617,22 @@ export default function CertificatesAdminPage() {
   }`}
 >
   Joining Letter
+</button>
+
+<button
+  type="button"
+  onClick={() => {
+    setDocumentType("lor");
+    setError("");
+    setCertificate(null);
+  }}
+  className={`h-12 rounded-xl text-sm transition ${
+    documentType === "lor"
+      ? "bg-white text-black"
+      : "text-white/50 hover:bg-white/5 hover:text-white"
+  }`}
+>
+  LOR
 </button>
         </div>
       </div>
@@ -985,6 +1130,206 @@ export default function CertificatesAdminPage() {
     </form>
   );
 }
+
+function renderLorForm() {
+  return (
+    <form
+      onSubmit={handleLorSubmit}
+      className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-10"
+    >
+      <div className="mb-8">
+        <p className="text-xs uppercase tracking-[0.2em] text-white/35">
+          Internship Document
+        </p>
+
+        <h2 className="mt-2 text-2xl font-medium">
+          Generate Letter of Recommendation
+        </h2>
+
+        <p className="mt-2 text-sm leading-relaxed text-white/40">
+          Generate an official ManageMedia
+          letter of recommendation for a
+          completed internship.
+        </p>
+      </div>
+
+      <div className="grid gap-7">
+
+        <Field
+          label="Intern Name"
+          value={lorForm.name}
+          placeholder="Enter intern's full name"
+          onChange={(value) =>
+            updateLorField("name", value)
+          }
+          required
+        />
+
+        <div>
+          <label
+            htmlFor="lor-internship"
+            className="mb-3 block text-sm text-white/60"
+          >
+            Internship
+          </label>
+
+          <select
+            id="lor-internship"
+            value={lorForm.internship}
+            onChange={(event) =>
+              updateLorField(
+                "internship",
+                event.target.value
+              )
+            }
+            className="h-14 w-full rounded-2xl border border-white/10 bg-black px-5 text-sm text-white outline-none transition focus:border-white/30"
+          >
+            <option>
+              Web Development Intern
+            </option>
+
+            <option>
+              Digital Marketing Intern
+            </option>
+
+            <option>
+              Social Media Marketing Intern
+            </option>
+
+            <option>
+              Graphic Design Intern
+            </option>
+
+            <option>
+              Data Analyst Intern
+            </option>
+
+            <option>
+              Business Analyst Intern
+            </option>
+
+            <option>
+              Other
+            </option>
+          </select>
+        </div>
+
+        <Field
+          label="Duration"
+          value={lorForm.duration}
+          placeholder="e.g. 1 Month"
+          onChange={(value) =>
+            updateLorField(
+              "duration",
+              value
+            )
+          }
+          required
+        />
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          <DateField
+            label="Start Date"
+            value={lorForm.startDate}
+            onChange={(value) =>
+              updateLorField(
+                "startDate",
+                value
+              )
+            }
+            required
+          />
+
+          <DateField
+            label="End Date"
+            value={lorForm.endDate}
+            onChange={(value) =>
+              updateLorField(
+                "endDate",
+                value
+              )
+            }
+            required
+          />
+
+          <DateField
+            label="Issue Date"
+            value={lorForm.issueDate}
+            onChange={(value) =>
+              updateLorField(
+                "issueDate",
+                value
+              )
+            }
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="lor-work-mode"
+            className="mb-3 block text-sm text-white/60"
+          >
+            Work Mode
+          </label>
+
+          <select
+            id="lor-work-mode"
+            value={lorForm.workMode}
+            onChange={(event) =>
+              updateLorField(
+                "workMode",
+                event.target.value
+              )
+            }
+            className="h-14 w-full rounded-2xl border border-white/10 bg-black px-5 text-sm text-white outline-none transition focus:border-white/30"
+          >
+            <option>Remote</option>
+            <option>Hybrid</option>
+            <option>On-site</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="lor-performance"
+            className="mb-3 block text-sm text-white/60"
+          >
+            Performance / Recommendation
+          </label>
+
+          <textarea
+            id="lor-performance"
+            value={lorForm.performance}
+            onChange={(event) =>
+              updateLorField(
+                "performance",
+                event.target.value
+              )
+            }
+            placeholder="Optional recommendation or performance statement..."
+            rows={5}
+            className="w-full resize-none rounded-2xl border border-white/10 bg-black px-5 py-4 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-white/30"
+          />
+        </div>
+
+        {error && (
+          <ErrorMessage message={error} />
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-2 h-14 rounded-full bg-white px-8 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading
+            ? "Generating LOR..."
+            : "Generate Letter of Recommendation"}
+        </button>
+      </div>
+    </form>
+  );
+}
   /*
    * ==========================================
    * CERTIFICATE RESULT
@@ -1143,8 +1488,10 @@ export default function CertificatesAdminPage() {
   )
 ) : documentType === "offer-letter" ? (
   renderOfferLetterForm()
-) : (
+) : documentType === "joining-letter" ? (
   renderJoiningLetterForm()
+) : (
+  renderLorForm()
 )}
       </div>
     </main>
