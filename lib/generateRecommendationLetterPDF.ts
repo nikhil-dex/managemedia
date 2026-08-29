@@ -328,7 +328,7 @@ const signatureImage =
 
   const performance =
     data.performance?.trim() ||
-    `${data.name} demonstrated dedication, willingness to learn, and a responsible approach to the internship. ${data.name} was able to adapt to assigned responsibilities and complete the work expected during the internship period.`;
+    `${data.name} demonstrated dedication, willingness to learn, and a responsible approach to the internship. They were able to adapt to assigned responsibilities and complete the work expected during the internship period.`;
 
   y = drawWrappedText(
     page,
