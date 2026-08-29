@@ -130,7 +130,7 @@ export default function CertificateVerification({
    * ==========================================
    */
 
-  const verifyDocument = useCallback(
+const verifyDocument = useCallback(
   async (number: string) => {
     const normalizedNumber =
       number.trim().toUpperCase();
@@ -139,9 +139,7 @@ export default function CertificateVerification({
       setError(
         "Please enter a document number."
       );
-
       setDocument(null);
-
       return;
     }
 
@@ -151,97 +149,7 @@ export default function CertificateVerification({
 
     try {
       const type =
-        getDocumentType(
-          normalizedNumber
-        );
-
-      /*
-       * ========================================
-       * INVALID PREFIX
-       * ========================================
-       */
-
-      if (!type) {
-        setError(
-          "Invalid document number. Please check the number and try again."
-        );
-
-        return;
-      }
-
-      /*
-       * ========================================
-       * CERTIFICATE
-       * ========================================
-       *
-       * Certificates continue using the
-       * existing certificate verification API.
-       */
-
-      if (type === "certificate") {
-        const response =
-          await fetch(
-            "/api/certificates/verify",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-              body: JSON.stringify({
-                certificateNumber:
-                  normalizedNumber,
-              }),
-            }
-          );
-
-        const data =
-          await response.json();
-
-        if (
-          !response.ok ||
-          !data.success
-        ) {
-          setError(
-            data.message ||
-              "Certificate could not be verified."
-          );
-
-          return;
-        }
-
-        setDocument({
-          documentNumber:
-            data.certificate
-              .certificateNumber,
-
-          documentType:
-            "certificate",
-
-          name:
-            data.certificate.name,
-
-          internship:
-            data.certificate.internship,
-
-          duration:
-            data.certificate.duration,
-
-          startDate:
-            data.certificate.startDate,
-
-          endDate:
-            data.certificate.endDate,
-
-          issueDate:
-            data.certificate.issueDate,
-
-          status:
-            data.certificate.status,
-        });
-
-        return;
-      }
+        getDocumentType(normalizedNumber);
 
       /*
        * ========================================
@@ -249,8 +157,12 @@ export default function CertificateVerification({
        * ========================================
        */
 
-      const response =
-        await fetch(
+      if (
+        type === "offer-letter" ||
+        type === "joining-letter" ||
+        type === "lor"
+      ) {
+        const response = await fetch(
           "/api/documents/verify",
           {
             method: "POST",
@@ -265,6 +177,50 @@ export default function CertificateVerification({
           }
         );
 
+        const data =
+          await response.json();
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          setError(
+            data.message ||
+              "Document could not be verified."
+          );
+          return;
+        }
+
+        setDocument(data.document);
+        return;
+      }
+
+      /*
+       * ========================================
+       * CERTIFICATE
+       * ========================================
+       *
+       * Anything that isn't an Offer Letter,
+       * Joining Letter, or LOR is treated as
+       * a certificate and sent to the existing
+       * certificate verification API.
+       */
+
+      const response = await fetch(
+        "/api/certificates/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            certificateNumber:
+              normalizedNumber,
+          }),
+        }
+      );
+
       const data =
         await response.json();
 
@@ -274,15 +230,40 @@ export default function CertificateVerification({
       ) {
         setError(
           data.message ||
-            "Document could not be verified."
+            "Certificate could not be verified."
         );
-
         return;
       }
 
-      setDocument(
-        data.document
-      );
+      setDocument({
+        documentNumber:
+          data.certificate
+            .certificateNumber,
+
+        documentType:
+          "certificate",
+
+        name:
+          data.certificate.name,
+
+        internship:
+          data.certificate.internship,
+
+        duration:
+          data.certificate.duration,
+
+        startDate:
+          data.certificate.startDate,
+
+        endDate:
+          data.certificate.endDate,
+
+        issueDate:
+          data.certificate.issueDate,
+
+        status:
+          data.certificate.status,
+      });
     } catch (error) {
       console.error(
         "Document verification error:",
@@ -295,7 +276,7 @@ export default function CertificateVerification({
     } finally {
       setLoading(false);
     }
-    },
+  },
   []
 );
 
