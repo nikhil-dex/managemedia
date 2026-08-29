@@ -211,7 +211,7 @@ const signatureImage =
    * QR Code
    */
   const verificationUrl =
-    `https://managemedia.in/verify/` +
+    `https://www.managemedia.tech/verify/` +
     encodeURIComponent(
       certificate.certificateNumber
     );

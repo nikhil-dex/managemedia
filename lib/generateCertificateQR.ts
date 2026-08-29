@@ -5,7 +5,7 @@ export async function generateCertificateQR(
 ) {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://managemedia.in";
+    "https://www.managemedia.tech";
 
   const verificationUrl = `${baseUrl}/verify/${encodeURIComponent(
     certificateNumber
