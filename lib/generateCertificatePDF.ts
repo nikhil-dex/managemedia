@@ -210,11 +210,15 @@ const signatureImage =
   /*
    * QR Code
    */
-  const verificationUrl =
-    `https://www.managemedia.tech/verify/` +
-    encodeURIComponent(
-      certificate.certificateNumber
-    );
+ const baseUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://www.managemedia.tech";
+
+const verificationUrl =
+  `${baseUrl}/verify/` +
+  encodeURIComponent(
+    certificate.certificateNumber
+  );
 
   const qrDataUrl =
     await QRCode.toDataURL(

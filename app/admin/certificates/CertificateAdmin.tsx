@@ -1342,7 +1342,7 @@ function renderLorForm() {
     }
 
     const verificationUrl =
-      `https://managemedia.in/verify/${certificate.certificateNumber}`;
+      `https://www.managemedia.tech/verify/${certificate.certificateNumber}`;
 
     return (
       <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.04] p-6 md:p-10">
