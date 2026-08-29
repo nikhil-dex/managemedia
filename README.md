@@ -70,3 +70,15 @@ managemedia/
 ├── package.json
 ├── tsconfig.json
 └── README.md
+
+
+## 📄 License
+
+This project is proprietary software owned by ManageMedia.
+
+All rights are reserved. The source code, design, assets, branding, and
+other project materials may not be copied, modified, redistributed,
+published, or used in other projects without prior written permission
+from ManageMedia.
+
+See the [LICENSE](LICENSE) file for the complete license terms.
