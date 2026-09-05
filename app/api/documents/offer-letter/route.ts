@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateOfferLetterPDF } from "@/lib/generateOfferLetterPDF";
+import { generateOfferLetterPDF } from "@/lib/generateOl";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
 import Document from "@/models/Document";
