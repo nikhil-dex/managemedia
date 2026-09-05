@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateJoiningLetterPDF } from "@/lib/generateJoiningLetterPDF";
+import { generateJoiningLetterPDF } from "@/lib/generateJl";
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
 import Document from "@/models/Document";

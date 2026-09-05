@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { connectDB } from "@/lib/mongodb";
 import Certificate from "@/models/Certificate";
-import { generateCertificatePDF } from "@/lib/generateCertificatePDF";
+import { generateCertificatePDF } from "@/lib/generateCert";
 
 interface RouteProps {
   params: Promise<{
